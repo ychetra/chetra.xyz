@@ -12,5 +12,8 @@ export default defineConfig({
       // temp: allow dev-server access through preview tunnels
       allowedHosts: ['.lhr.life', '.chetra.xyz'],
     },
+    preview: {
+      allowedHosts: true,
+    },
   },
 });
