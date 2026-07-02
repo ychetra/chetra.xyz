@@ -1,0 +1,338 @@
+---
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import Base from '../layouts/Base.astro';
+
+const title = 'Strategy Tearsheet — ORB_SESSION · Chetra';
+const description =
+  'One-page validated tearsheet for ORB_SESSION (XAUUSD, H1): real-spread Sharpe 1.53, deflated Sharpe 0.909, locked 2026-H1 holdout Sharpe 3.75.';
+
+const params = [
+  { k: 'buffer_atr', v: '0.1' },
+  { k: 'session_hour', v: '7' },
+  { k: 'or_bars', v: '4' },
+  { k: 'tp_ratio', v: '2.0' },
+  { k: 'trend_ema', v: '200' },
+];
+
+/*
+  Hand-authored illustrative equity path, static (no draw-in animation on the
+  tearsheet — this is a print/export surface, not a scroll-reveal one).
+  viewBox 0 0 1000 260. General uptrend with two visible drawdown dips.
+*/
+const equityPoints: [number, number][] = [
+  [0, 220],
+  [55, 205],
+  [110, 214],
+  [165, 188],
+  [220, 196],
+  [275, 168],
+  [330, 176],
+  [385, 148],
+  [440, 156],
+  [495, 122],
+  [550, 134],
+  [605, 108],
+  [660, 116],
+  [715, 86],
+  [770, 98],
+  [825, 70],
+  [880, 78],
+  [935, 48],
+  [1000, 30],
+];
+const equityLine = equityPoints.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
+const equityFill = `${equityLine} L1000,260 L0,260 Z`;
+
+const funnel = [
+  { label: 'trials', value: '3,911', pct: 100 },
+  { label: 'ranked', value: '2,192', pct: 92 },
+  { label: 'overfit-audited', value: '20', pct: 34 },
+  { label: 'passed every gate', value: '1', pct: 6 },
+];
+
+// Detected at build time: the static /tearsheet.pdf is generated separately
+// (headless Chrome print-to-pdf) and is a bonus artifact, not guaranteed to
+// exist. Only surface the "Download PDF" link when the file is actually there.
+const pdfExists = existsSync(fileURLToPath(new URL('../../public/tearsheet.pdf', import.meta.url)));
+---
+
+<Base title={title} description={description}>
+  <section class="tearsheet mx-auto max-w-[880px] overflow-x-hidden px-6 py-16 print:py-0 md:py-20">
+    <a href="/" class="no-print mb-8 inline-block font-mono text-xs text-muted underline underline-offset-4 hover:text-accent">
+      ← Back to site
+    </a>
+
+    <div class="ts-header flex flex-wrap items-end justify-between gap-6 border-b border-accent pb-6 print:pb-3">
+      <div>
+        <p class="font-mono text-xs uppercase tracking-[0.15em] text-muted">CHETRA</p>
+        <p class="mt-1 font-display text-2xl font-bold text-fg">Strategy Tearsheet</p>
+      </div>
+      <div class="text-right">
+        <p class="font-mono text-xs uppercase tracking-[0.15em] text-muted">AS OF 2026-07-03</p>
+        <p class="mt-1 inline-block border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+          Demo / Validated Backtest
+        </p>
+      </div>
+    </div>
+
+    <section aria-labelledby="identity-heading" class="mt-10 print:mt-3">
+      <h1
+        id="identity-heading"
+        class="break-words font-display text-4xl font-black leading-none text-fg [overflow-wrap:anywhere] print:text-4xl sm:text-5xl md:text-6xl"
+      >
+        ORB_SESSION
+      </h1>
+      <p class="mt-3 font-mono text-sm text-muted print:mt-1">Opening-Range Breakout · XAUUSD · H1</p>
+      <ul class="mt-5 flex flex-wrap gap-2 print:mt-3" aria-label="Strategy parameters">
+        {
+          params.map((p) => (
+            <li class="border border-line px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-muted print:px-2 print:py-1">
+              {p.k}
+              <span class="text-fg">={p.v}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="metrics-heading" class="mt-12 grid gap-8 print:mt-4 print:gap-6 sm:grid-cols-3">
+      <h2 id="metrics-heading" class="sr-only">Key metrics</h2>
+
+      <div class="metric-group">
+        <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted print:mb-2">Return quality</p>
+        <dl class="space-y-3 print:space-y-1.5">
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Real-spread Sharpe<br /><span class="text-[10px]">MT5 validation</span></dt>
+            <dd class="min-w-0 flex-1 text-right font-display text-3xl leading-none text-accent">1.53</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Holdout Sharpe<br /><span class="text-[10px]">locked 2026-H1</span></dt>
+            <dd class="min-w-0 flex-1 text-right font-display text-xl leading-none text-up">3.75</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Screen Sharpe<br /><span class="text-[10px]">pre-cost</span></dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">2.50</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Retained after real costs</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">61%</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="metric-group">
+        <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted print:mb-2">Risk</p>
+        <dl class="space-y-3 print:space-y-1.5">
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Max drawdown<br /><span class="text-[10px]">real-spread backtest</span></dt>
+            <dd class="min-w-0 flex-1 text-right font-display text-3xl leading-none text-down">11.07%</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Win rate</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">52.5%</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Trades</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">512</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Holdout trades / week</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">1.21</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="metric-group">
+        <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted print:mb-2">Robustness</p>
+        <dl class="space-y-3 print:space-y-1.5">
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Deflated Sharpe Ratio<br /><span class="text-[10px]">gate ≥ 0.90 ✓</span></dt>
+            <dd class="min-w-0 flex-1 text-right font-display text-3xl leading-none text-up">0.909</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Overfit audit</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-up">PASS</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Universe scanned</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">19 modules × 8 symbols</dd>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <dt class="w-[54%] shrink-0 font-mono text-xs text-muted">Status</dt>
+            <dd class="min-w-0 flex-1 text-right font-mono text-sm text-fg">Preparing HolaPrime 2-step</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section aria-labelledby="equity-heading" class="equity-block mt-14 print:mt-4">
+      <h2 id="equity-heading" class="font-mono text-[11px] uppercase tracking-[0.15em] text-muted">Holdout equity path</h2>
+      <div class="mt-4 border border-line p-4 print:mt-2 print:p-2">
+        <svg viewBox="0 0 1000 260" preserveAspectRatio="none" class="h-40 w-full print:h-24" role="img" aria-label="Illustrative equity curve, general uptrend with two drawdown dips">
+          <defs>
+            <linearGradient id="ts-equity-fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--color-accent)" stop-opacity="0.16" />
+              <stop offset="100%" stop-color="var(--color-accent)" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <g class="equity-grid" stroke="var(--color-line)" stroke-width="1">
+            <line x1="0" y1="65" x2="1000" y2="65" />
+            <line x1="0" y1="130" x2="1000" y2="130" />
+            <line x1="0" y1="195" x2="1000" y2="195" />
+          </g>
+          <path d={equityFill} fill="url(#ts-equity-fade)" />
+          <path
+            d={equityLine}
+            fill="none"
+            stroke="var(--color-accent)"
+            stroke-width="3"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+            vector-effect="non-scaling-stroke"
+          />
+        </svg>
+      </div>
+      <p class="mt-3 font-mono text-xs text-muted print:mt-1.5">
+        Illustrative equity path. Holdout tested on 5 months of locked, unseen data.
+      </p>
+    </section>
+
+    <section aria-labelledby="funnel-heading" class="funnel mt-14 print:mt-4">
+      <h2 id="funnel-heading" class="font-mono text-[11px] uppercase tracking-[0.15em] text-muted">The funnel</h2>
+      <div class="mt-4 flex flex-wrap items-end gap-4 print:mt-2 sm:flex-nowrap sm:gap-2">
+        {
+          funnel.map((f, i) => (
+            <>
+              <div class="min-w-[64px] flex-1">
+                <p class="font-display text-2xl leading-none text-fg">{f.value}</p>
+                <p class="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">{f.label}</p>
+                <div class="mt-2 h-1.5 bg-line">
+                  <div class="h-full bg-accent" style={`width:${f.pct}%`} />
+                </div>
+              </div>
+              {i < funnel.length - 1 && <span class="pb-6 font-mono text-muted" aria-hidden="true">→</span>}
+            </>
+          ))
+        }
+      </div>
+      <p class="mt-4 font-mono text-xs text-muted print:mt-2">The factory rejects 99.97% of candidates.</p>
+    </section>
+
+    <section aria-labelledby="method-heading" class="mt-14 max-w-[64ch] print:mt-4">
+      <h2 id="method-heading" class="font-mono text-[11px] uppercase tracking-[0.15em] text-muted">Methodology</h2>
+      <p class="mt-4 text-sm leading-relaxed text-muted print:mt-2 print:text-xs print:leading-snug">
+        Every parameter set that survives ranking is re-run at real MT5 spread and commission before it is
+        trusted — not a clean fill model. The deflated Sharpe ratio corrects for the multiple-testing bias of
+        scanning thousands of trials, and the strategy must still clear a 0.90 gate after that correction.
+        Final confirmation comes from a holdout window locked before search began: five months of 2026 data
+        the strategy never saw during discovery or validation.
+      </p>
+    </section>
+
+    <section class="mt-12 border-t border-line pt-4 print:mt-4 print:pt-2">
+      <p class="font-mono text-[10px] leading-relaxed text-muted">
+        Backtested and validated results. Not live trading results. Past performance does not guarantee future
+        results. Prepared for informational purposes. Figures derived from the author's strategy-factory
+        pipeline.
+      </p>
+    </section>
+
+    <div class="ts-footer mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6 print:mt-3 print:pt-2">
+      <p class="font-mono text-[11px] uppercase tracking-[0.15em] text-muted">
+        chetra.xyz · hi@chetra.xyz · github.com/ychetra
+      </p>
+      <div class="no-print flex flex-wrap gap-3">
+        {
+          pdfExists && (
+            <a
+              href="/tearsheet.pdf"
+              class="inline-flex items-center justify-center border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.15em] text-fg transition-colors hover:border-accent hover:text-accent"
+            >
+              Download PDF
+            </a>
+          )
+        }
+        <button
+          type="button"
+          data-print-btn
+          class="inline-flex items-center justify-center border border-line px-4 py-2 font-mono text-xs uppercase tracking-[0.15em] text-fg transition-colors hover:border-accent hover:text-accent"
+        >
+          Print / Save as PDF
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.querySelector('[data-print-btn]')?.addEventListener('click', () => window.print());
+  </script>
+</Base>
+
+<style is:global>
+  /*
+    Print theme: the tearsheet must export as a clean LIGHT one-pager, so the
+    dark site tokens are overridden for print only. This <style is:global>
+    block still ends up in the SITE-WIDE shared CSS bundle (Astro/Vite
+    dedupes all page styles into one index.*.css), so every rule here is
+    scoped with `html:has(.tearsheet)` — matching only when the tearsheet's
+    own wrapper is present in the document — to avoid flipping the homepage
+    or /notes into a light print theme. `html:has(.tearsheet):root` (0,3,1)
+    also outranks `:root` (0,1,0) and Base.astro's `html:root` (0,1,1), so
+    the override wins regardless of stylesheet concatenation order.
+  */
+  @media print {
+    html:has(.tearsheet):root {
+      --color-bg: #ffffff;
+      --color-surface: #ffffff;
+      --color-elevated: #ffffff;
+      --color-line: #d8d2c4;
+      --color-fg: #111111;
+      --color-muted: #55504a;
+      --color-accent: #b37e00;
+      --color-accent-dim: #8a6300;
+      --color-up: #0f7a4e;
+      --color-down: #a4231c;
+    }
+
+    html:has(.tearsheet),
+    html:has(.tearsheet) body {
+      background: #ffffff !important;
+    }
+
+    html:has(.tearsheet) * {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color-adjust: exact;
+    }
+
+    html:has(.tearsheet) header,
+    html:has(.tearsheet) footer,
+    html:has(.tearsheet) .skip-link,
+    html:has(.tearsheet) .no-print {
+      display: none !important;
+    }
+
+    .tearsheet {
+      max-width: 100%;
+      padding: 0;
+    }
+
+    .metric-group,
+    .equity-block,
+    .funnel {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /*
+      @page can't be scoped by selector (it's not tied to an element), so
+      this margin applies to any page on the site that's printed, not just
+      the tearsheet. Left global intentionally: a 16mm print margin is a
+      reasonable default anywhere and doesn't hide/alter content elsewhere.
+    */
+    @page {
+      margin: 16mm;
+    }
+  }
+</style>

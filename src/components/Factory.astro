@@ -24,6 +24,39 @@ const survivorStats = [
   { label: 'Max drawdown', value: '11.1%' },
   { label: 'Trades', value: '512' },
 ];
+
+// --- Cockpit equity curve -------------------------------------------------
+// Deterministic ~60-point series: linear upward drift + two drawdown dips,
+// expressed as pure math (no Math.random) so the SSR output is fixed at
+// build time. Nothing for cockpit.js to reconcile on mount — it only needs
+// to draw-in and later extend this exact starting series.
+const EQUITY_N = 60;
+const EQUITY_VB_W = 600;
+const EQUITY_VB_H = 200;
+const EQUITY_BASE_Y = 182; // low-equity baseline (near bottom of the chart)
+const EQUITY_PEAK_Y = 22; // highest equity (near top of the chart)
+
+function buildEquitySeries() {
+  const ys = [];
+  for (let i = 0; i < EQUITY_N; i++) {
+    const t = i / (EQUITY_N - 1);
+    const drift = EQUITY_BASE_Y - (EQUITY_BASE_Y - EQUITY_PEAK_Y) * t;
+    const wobble = Math.sin(i * 0.9) * 3.4 + Math.sin(i * 0.37 + 1.3) * 2.2;
+    const dip1 = Math.exp(-(((t - 0.32) * 9) ** 2)) * 15;
+    const dip2 = Math.exp(-(((t - 0.68) * 11) ** 2)) * 10;
+    const y = Math.min(EQUITY_BASE_Y + 4, Math.max(EQUITY_PEAK_Y - 4, drift + wobble + dip1 + dip2));
+    ys.push(Number(y.toFixed(2)));
+  }
+  return ys;
+}
+
+const equityY = buildEquitySeries();
+const equityPath = equityY
+  .map((y, i) => `${i === 0 ? 'M' : 'L'} ${((i / (EQUITY_N - 1)) * EQUITY_VB_W).toFixed(2)} ${y}`)
+  .join(' ');
+const equityLastPoint = [EQUITY_VB_W, equityY[equityY.length - 1]];
+
+const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'LIVE'];
 ---
 
 <section id="factory" aria-labelledby="factory-heading" class="border-y border-line bg-surface py-24 md:py-32">
@@ -158,11 +191,158 @@ const survivorStats = [
         A real-time dashboard watches every stage — equity, open risk, pipeline state — backed by MongoDB
         Atlas.
       </p>
-      <figure class="flex aspect-video items-center justify-center border border-line bg-elevated" data-reveal-item>
-        <figcaption class="font-mono text-xs uppercase tracking-[0.15em] text-muted">
-          [ cockpit screenshots — incoming ]
+      <!--
+        aspect-video is exact at sm:+ (single-row equity|stat-rail body). Below
+        640px the stat rail drops under the equity panel (2 stacked rows) per
+        spec's mobile layout, which needs more height than a strict 16:9 box
+        at phone widths can give without clipping — so mobile relaxes to
+        aspect-auto (content-driven height) and locks to 16:9 from sm: up.
+      -->
+      <figure class="flex aspect-auto flex-col border border-line bg-elevated sm:aspect-video" data-reveal-item>
+        <div
+          class="flex flex-col font-mono text-fg sm:min-h-0 sm:flex-1"
+          data-cockpit
+          data-cockpit-points={JSON.stringify(equityY)}
+        >
+          <!-- status bar -->
+          <div
+            class="flex shrink-0 items-center justify-between gap-2 border-b border-line px-2 py-1.5 text-[10px] uppercase tracking-[0.1em] sm:px-3 sm:py-2 sm:text-xs"
+          >
+            <div class="flex min-w-0 items-center gap-2">
+              <span class="h-2 w-2 shrink-0 bg-accent" data-cockpit-dot aria-hidden="true"></span>
+              <span class="shrink-0 text-fg">LIVE</span>
+              <span class="truncate text-muted">ORB_SESSION &middot; XAUUSD &middot; H1</span>
+            </div>
+            <div class="flex shrink-0 items-center gap-3">
+              <span class="tabular-nums text-muted" data-cockpit-clock>14:32:00</span>
+              <span class="hidden text-muted sm:inline">DEMO &mdash; SIMULATED</span>
+            </div>
+          </div>
+
+          <!-- body: equity panel + stat rail -->
+          <div class="grid grid-cols-1 sm:min-h-0 sm:flex-1 sm:grid-cols-[1fr_auto]">
+            <div class="relative min-h-[120px] border-b border-line p-2 sm:min-h-0 sm:border-b-0 sm:border-r sm:p-3">
+              <span
+                class="absolute left-2 top-2 text-[10px] uppercase tracking-[0.1em] text-muted sm:left-3 sm:top-3"
+              >
+                EQUITY
+              </span>
+              <span
+                class="absolute bottom-2 right-2 text-xs tabular-nums text-up sm:bottom-3 sm:right-3"
+                data-cockpit-equity-value
+                data-target="4.7"
+              >
+                +4.7%
+              </span>
+              <svg
+                viewBox={`0 0 ${EQUITY_VB_W} ${EQUITY_VB_H}`}
+                preserveAspectRatio="none"
+                class="h-full w-full"
+                aria-hidden="true"
+              >
+                <line x1="0" y1="50" x2={EQUITY_VB_W} y2="50" stroke="#2A251F" stroke-width="1" opacity="0.4" />
+                <line x1="0" y1="100" x2={EQUITY_VB_W} y2="100" stroke="#2A251F" stroke-width="1" opacity="0.4" />
+                <line x1="0" y1="150" x2={EQUITY_VB_W} y2="150" stroke="#2A251F" stroke-width="1" opacity="0.4" />
+                <line x1="0" y1="196" x2={EQUITY_VB_W} y2="196" stroke="#2A251F" stroke-width="1" opacity="0.7" />
+                <path
+                  d={equityPath}
+                  fill="none"
+                  stroke="#F0B429"
+                  stroke-width="1.5"
+                  vector-effect="non-scaling-stroke"
+                  pathLength="1"
+                  data-cockpit-equity-line
+                />
+                <rect
+                  data-cockpit-now-dot
+                  x={equityLastPoint[0] - 3}
+                  y={equityLastPoint[1] - 3}
+                  width="6"
+                  height="6"
+                  fill="#F0B429"
+                />
+              </svg>
+            </div>
+            <dl
+              class="flex flex-col justify-center px-2 py-1 text-[10px] sm:w-48 sm:px-3 sm:py-2 sm:text-[11px]"
+              data-cockpit-stats
+            >
+              <div class="flex flex-wrap items-center justify-between border-b border-line py-1.5">
+                <dt class="text-muted">OPEN RISK</dt>
+                <dd class="tabular-nums text-fg">0.50%</dd>
+                <div class="mt-1.5 h-1 basis-full bg-accent-dim" aria-hidden="true">
+                  <div class="h-full bg-accent" style="width: 25%"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between border-b border-line py-1.5">
+                <dt class="text-muted">DAY P&amp;L</dt>
+                <dd class="tabular-nums text-up" data-cockpit-pnl data-value="0.82">+0.82%</dd>
+              </div>
+              <div class="flex items-center justify-between border-b border-line py-1.5">
+                <dt class="text-muted">SHARPE</dt>
+                <dd class="tabular-nums text-fg">1.53</dd>
+              </div>
+              <div class="flex items-center justify-between py-1.5">
+                <dt class="text-muted">WIN RATE</dt>
+                <dd class="tabular-nums text-fg">52.5%</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- pipeline strip -->
+          <div
+            class="flex shrink-0 items-center gap-1.5 overflow-x-auto border-t border-line px-2 py-1.5 text-[10px] uppercase tracking-[0.1em] sm:gap-2 sm:px-3 sm:py-2 sm:text-[11px]"
+            data-cockpit-pipeline
+          >
+            {
+              pipelineStages.map((stage, i) => (
+                <>
+                  <span
+                    class:list={[
+                      'shrink-0 whitespace-nowrap px-1.5 py-0.5',
+                      stage === 'AUDIT' ? 'bg-surface text-accent' : 'text-muted',
+                    ]}
+                    data-cockpit-stage
+                    data-active={stage === 'AUDIT' ? 'true' : undefined}
+                  >
+                    {stage}
+                  </span>
+                  {i < pipelineStages.length - 1 && (
+                    <svg class="h-2 w-5 shrink-0" viewBox="0 0 40 10" preserveAspectRatio="none" aria-hidden="true">
+                      <line x1="0" y1="5" x2="40" y2="5" stroke="#2A251F" stroke-width="2" />
+                      <line
+                        data-connector-dash
+                        x1="0"
+                        y1="5"
+                        x2="40"
+                        y2="5"
+                        stroke="#F0B429"
+                        stroke-width="2"
+                        stroke-dasharray="6 10"
+                      />
+                    </svg>
+                  )}
+                </>
+              ))
+            }
+          </div>
+
+          <!-- log ticker -->
+          <div class="shrink-0 border-t border-line px-2 py-1.5 sm:px-3 sm:py-2">
+            <p class="truncate text-[10px] text-muted sm:text-[11px]" data-cockpit-log>
+              <span class="text-fg">14:32:11</span> <span class="text-muted">audit</span>{' '}
+              <span class="text-muted">DSR 0.909 &ge; 0.90</span> <span class="text-up">&check; pass</span>
+            </p>
+          </div>
+        </div>
+        <figcaption class="shrink-0 border-t border-line px-3 py-2 font-mono text-[11px] text-muted">
+          Simulated cockpit &mdash; live instance runs behind auth at trading.chetra.xyz.
         </figcaption>
       </figure>
     </div>
   </div>
 </section>
+
+<script>
+  import '../scripts/cockpit.js';
+</script>
