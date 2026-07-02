@@ -1,0 +1,35 @@
+---
+const items = [
+  'Python',
+  'vectorbt',
+  'pandas',
+  'FastAPI',
+  'JavaScript',
+  'ECharts',
+  'D3',
+  'Docker',
+  'MongoDB',
+  'MQL5',
+  'MCP / multi-agent',
+];
+---
+
+<section id="stack" aria-labelledby="stack-heading" class="border-y border-line py-6">
+  <h2 id="stack-heading" class="sr-only">Stack</h2>
+  <div class="mx-auto max-w-6xl px-6 md:px-10">
+    <p class="flex flex-wrap items-center gap-x-2 gap-y-2 font-mono text-xs uppercase tracking-[0.15em] text-muted">
+      {
+        items.map((item, i) => (
+          <>
+            <span>{item}</span>
+            {i < items.length - 1 && (
+              <span class="text-accent" aria-hidden="true">
+                ·
+              </span>
+            )}
+          </>
+        ))
+      }
+    </p>
+  </div>
+</section>

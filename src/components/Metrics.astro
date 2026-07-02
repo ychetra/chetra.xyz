@@ -1,0 +1,63 @@
+---
+const cells = [
+  {
+    label: 'SHARPE — REAL SPREAD',
+    note: 'MT5 validation, 512 trades',
+    value: { text: '1.53', countTo: '1.53', decimals: 2, tone: 'fg' },
+  },
+  {
+    label: 'HOLDOUT SHARPE',
+    note: 'locked data, 2026 H1',
+    value: { text: '3.75', countTo: '3.75', decimals: 2, tone: 'up' },
+  },
+  {
+    label: 'DEFLATED SHARPE',
+    note: 'gate ≥ 0.90 — passed',
+    value: { text: '0.91', countTo: '0.91', decimals: 2, tone: 'fg' },
+  },
+  {
+    label: 'MAX DRAWDOWN',
+    note: 'real-spread backtest',
+    value: { text: '11.1%', countTo: '11.1', decimals: 1, suffix: '%', tone: 'down' },
+  },
+];
+---
+
+<section id="metrics" aria-labelledby="metrics-heading" class="border-y border-line">
+  <h2 id="metrics-heading" class="sr-only">Performance metrics</h2>
+  <div class="grid grid-cols-2 gap-px bg-line md:grid-cols-5" data-reveal-group>
+    {
+      cells.map((cell) => (
+        <div class="bg-surface p-6" data-reveal-item>
+          <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">{cell.label}</p>
+          <p
+            class:list={[
+              'font-display text-[2.5rem] leading-none',
+              cell.value.tone === 'up' && 'text-up',
+              cell.value.tone === 'down' && 'text-down',
+              cell.value.tone === 'fg' && 'text-fg',
+            ]}
+          >
+            <span
+              data-count-to={cell.value.countTo}
+              data-decimals={cell.value.decimals}
+              data-suffix={cell.value.suffix ?? ''}
+            >
+              {cell.value.text}
+            </span>
+          </p>
+          <p class="mt-2 text-xs text-muted">{cell.note}</p>
+        </div>
+      ))
+    }
+    <div class="col-span-2 bg-surface p-6 md:col-span-1" data-reveal-item>
+      <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">TRIALS → SURVIVORS</p>
+      <p class="font-display text-[2.5rem] leading-none text-fg">
+        <span data-count-to="3911" data-decimals="0">3,911</span>
+        {' → '}
+        <span class="text-accent" data-count-to="1" data-decimals="0">1</span>
+      </p>
+      <p class="mt-2 text-xs text-muted">the factory rejects 99.97%</p>
+    </div>
+  </div>
+</section>

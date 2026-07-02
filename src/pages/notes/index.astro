@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const title = 'Notes — Chetra';
+const description =
+  "Writeups are coming: the anti-overfit gate design, and why the risk ladder never negotiates. No schedule promised — they'll be published when they're true.";
+---
+
+<Base title={title} description={description}>
+  <section aria-labelledby="notes-heading" class="mx-auto flex min-h-[70svh] max-w-3xl flex-col justify-center px-6 py-32 md:px-10">
+    <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted"><span class="text-accent">// </span>NOTES</p>
+    <h1 id="notes-heading" class="mb-8 font-display text-5xl font-black leading-[0.95] md:text-7xl">Notes</h1>
+    <p class="mb-10 max-w-xl text-lg text-muted">
+      Writeups are coming: the anti-overfit gate design, and why the risk ladder never negotiates. No schedule
+      promised — they'll be published when they're true.
+    </p>
+    <a href="/" class="w-fit font-mono text-sm text-accent underline underline-offset-4">← Back home</a>
+  </section>
+</Base>

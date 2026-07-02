@@ -1,0 +1,98 @@
+---
+const links = [
+  { label: 'Work', href: '#factory' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Notes', href: '/notes' },
+  { label: 'Contact', href: '#contact' },
+];
+---
+
+<header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/90 backdrop-blur">
+  <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-10" aria-label="Primary">
+    <a href="/" class="font-mono text-sm text-fg">
+      chetra.xyz<span class="text-accent">.</span>
+    </a>
+
+    <ul class="hidden items-center gap-8 font-mono text-xs uppercase tracking-[0.15em] md:flex">
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href} class="text-fg transition-colors hover:text-accent">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <button
+      id="nav-toggle"
+      type="button"
+      class="nav-toggle relative z-50 h-8 w-8 md:hidden"
+      aria-expanded="false"
+      aria-controls="nav-overlay"
+      aria-label="Open menu"
+    >
+      <span class="hamburger-line" aria-hidden="true"></span>
+      <span class="hamburger-line" aria-hidden="true"></span>
+    </button>
+  </nav>
+</header>
+
+{/* Outside <header>: its backdrop-blur creates a containing block that would
+    trap this fixed overlay at the header's 64px height. */}
+<div
+  id="nav-overlay"
+  class="fixed inset-0 z-40 flex flex-col items-center justify-center bg-bg md:hidden"
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-label="Menu"
+>
+  <ul class="flex flex-col items-center gap-10 font-display text-[2.5rem]">
+    {
+      links.map((link) => (
+        <li>
+          <a href={link.href} class="nav-overlay-link text-fg transition-colors hover:text-accent">
+            {link.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .hamburger-line {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    width: 20px;
+    height: 2px;
+    background: var(--color-fg);
+    transform: translateX(-50%);
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .hamburger-line:nth-child(2) {
+    top: 20px;
+  }
+
+  .nav-toggle.is-open .hamburger-line {
+    top: 16px;
+  }
+
+  .nav-toggle.is-open .hamburger-line:nth-child(1) {
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .nav-toggle.is-open .hamburger-line:nth-child(2) {
+    transform: translateX(-50%) rotate(-45deg);
+  }
+
+  .nav-overlay-link {
+    display: inline-block;
+  }
+</style>

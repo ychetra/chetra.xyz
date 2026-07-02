@@ -1,0 +1,110 @@
+---
+import '../styles/global.css';
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/fraunces/wght-italic.css';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource-variable/jetbrains-mono';
+import frauncesWoff2 from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Chetra — Discipline, engineered.',
+  description = 'Systematic day trader in Phnom Penh. I build autonomous trading systems: a strategy factory with anti-overfit gates, real-spread validation, and a risk ladder that never negotiates.',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://chetra.xyz');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B0A08" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://chetra.xyz/og.png" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://chetra.xyz/og.png" />
+
+    <link rel="preload" as="font" type="font/woff2" href={frauncesWoff2} crossorigin />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="bg-bg text-fg font-body antialiased">
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/motion.js';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /*
+    fontsource variable packages register their families as
+    "<Name> Variable" (e.g. "Fraunces Variable"), not the bare
+    "Fraunces" used by the design tokens in src/styles/global.css.
+    Re-point the token variables at the actual registered family
+    names here, without touching the token file itself.
+    html:root (0,1,1) intentionally outranks Tailwind's compiled
+    `:root` theme block (0,1,0) so this wins regardless of cascade
+    order in the bundled output.
+  */
+  html:root {
+    --font-display: 'Fraunces Variable', Georgia, serif;
+    --font-body: 'Instrument Sans Variable', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  }
+
+  * {
+    border-radius: 0 !important;
+    box-shadow: none;
+  }
+
+  html {
+    scroll-padding-top: 5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: -100%;
+    left: 0.5rem;
+    z-index: 100;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.75rem 1.25rem;
+    transition: top 0.2s ease;
+  }
+
+  .skip-link:focus {
+    top: 0.5rem;
+  }
+</style>

@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  /* Amber Terminal — approved variant A */
+  --color-bg: #0B0A08;
+  --color-surface: #141210;
+  --color-elevated: #1C1916;
+  --color-line: #2A251F;
+  --color-fg: #EDE6DA;
+  --color-muted: #8F8577;
+  --color-accent: #F0B429;
+  --color-accent-dim: #9C7418;
+  --color-up: #3FCF8E;
+  --color-down: #E5484D;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}

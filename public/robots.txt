@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chetra.xyz/sitemap-index.xml

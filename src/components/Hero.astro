@@ -1,0 +1,105 @@
+---
+/*
+  Hand-authored jagged equity curve, 24 points, general uptrend with two
+  visible drawdown dips (around points 9-11 and 18-21). viewBox 0 0 1000 300.
+*/
+const equityPoints: [number, number][] = [
+  [0, 254.4],
+  [43.5, 238.4],
+  [87, 219.2],
+  [130.4, 228.8],
+  [173.9, 203.2],
+  [217.4, 180.8],
+  [260.9, 193.6],
+  [304.3, 168],
+  [347.8, 142.4],
+  [391.3, 155.2],
+  [434.8, 174.4],
+  [478.3, 200],
+  [521.7, 184],
+  [565.2, 158.4],
+  [608.7, 132.8],
+  [652.2, 110.4],
+  [695.7, 123.2],
+  [739.1, 97.6],
+  [782.6, 72],
+  [826.1, 88],
+  [869.6, 113.6],
+  [913, 139.2],
+  [956.5, 100.8],
+  [1000, 49.6],
+];
+
+const linePath = equityPoints.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
+const fillPath = `${linePath} L1000,300 L0,300 Z`;
+---
+
+<section id="hero" aria-labelledby="hero-heading" class="relative min-h-[100svh] overflow-hidden border-b border-line">
+  <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 opacity-50 md:h-2/3 md:opacity-100" aria-hidden="true">
+    <svg
+      viewBox="0 0 1000 300"
+      preserveAspectRatio="none"
+      class="h-full w-full"
+      role="presentation"
+    >
+      <defs>
+        <linearGradient id="equity-fade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#F0B429" stop-opacity="0.04" />
+          <stop offset="100%" stop-color="#F0B429" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={fillPath} fill="url(#equity-fade)" />
+      <path
+        data-equity-line
+        d={linePath}
+        fill="none"
+        stroke="#F0B429"
+        stroke-opacity="0.35"
+        stroke-width="2"
+        stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
+        pathLength="1"
+      />
+    </svg>
+  </div>
+
+  <div
+    class="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl grid-cols-1 items-end gap-10 px-6 pb-16 pt-32 md:grid-cols-12 md:gap-6 md:px-10 md:pb-24"
+  >
+    <div class="md:col-span-7">
+      <p data-hero-kicker class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+        <span class="text-accent">// </span>CHETRA — PHNOM PENH · SYSTEMATIC DAY TRADER
+      </p>
+      <h1
+        id="hero-heading"
+        data-hero-heading
+        class="font-display font-black text-fg"
+        style="font-size:clamp(3.5rem,9vw,7.5rem); line-height:0.95; letter-spacing:-0.02em;"
+      >
+        Discipline,<br />
+        <span class="italic font-semibold text-accent">engineered.</span>
+      </h1>
+    </div>
+
+    <div data-hero-copy class="flex flex-col gap-8 md:col-span-5">
+      <p class="max-w-md text-lg text-muted">
+        I build the machines that keep me disciplined. An autonomous strategy factory — thousands of trials,
+        anti-overfit gates, locked holdout data — and a risk ladder that never negotiates.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a
+          href="#factory"
+          class="magnetic inline-flex items-center justify-center bg-accent px-8 py-4 font-mono text-xs uppercase tracking-[0.15em] text-bg"
+        >
+          View track record
+        </a>
+        <a
+          href="#contact"
+          class="magnetic inline-flex items-center justify-center border border-line px-8 py-4 font-mono text-xs uppercase tracking-[0.15em] text-fg transition-colors hover:border-accent"
+        >
+          Contact
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

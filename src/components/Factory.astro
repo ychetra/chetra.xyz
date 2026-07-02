@@ -1,0 +1,168 @@
+---
+const stages = [
+  { name: 'Research', note: 'idea → parameter space' },
+  { name: 'Screen', note: 'vectorbt, 3,911 trials' },
+  { name: 'Validate', note: 'MT5 real spreads' },
+  { name: 'Audit', note: 'DSR gate ≥ 0.90 + locked holdout' },
+  { name: 'Compare', note: '3 profiles: firm / real / crypto' },
+  { name: 'Live', note: 'paper first. always.' },
+];
+
+const funnel = [
+  { label: '3,911 parameter trials', width: 100, tone: 'dim' },
+  { label: '2,192 combos ranked', width: 56, tone: 'dim' },
+  { label: '20 audited for overfit', width: 9, tone: 'dim' },
+  { label: '1 passed every gate', width: 2, tone: 'accent' },
+];
+
+const survivorStats = [
+  { label: 'Screen Sharpe', value: '2.50' },
+  { label: 'Real-spread Sharpe', value: '1.53' },
+  { label: 'Retained after costs', value: '61%' },
+  { label: 'Holdout Sharpe (locked)', value: '3.75' },
+  { label: 'Win rate', value: '52.5%' },
+  { label: 'Max drawdown', value: '11.1%' },
+  { label: 'Trades', value: '512' },
+];
+---
+
+<section id="factory" aria-labelledby="factory-heading" class="border-y border-line bg-surface py-24 md:py-32">
+  <div class="mx-auto max-w-6xl px-6 md:px-10">
+    <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+      <span class="text-accent">// </span>CASE STUDY — THE STRATEGY FACTORY
+    </p>
+    <h2 id="factory-heading" class="max-w-3xl font-display text-4xl font-bold leading-[1.05] md:text-6xl">
+      A factory that fires strategies.
+    </h2>
+    <p class="mt-6 max-w-2xl text-lg text-muted">
+      An autonomous pipeline that researches, tests, and rejects trading strategies without me in the loop. MT5
+      runs in Docker behind a Wine bridge; a vectorbt engine backtests against real spread costs; every candidate
+      faces anti-overfit gates before it earns a forward test. 19 strategy modules. 8 symbols. One survivor so
+      far — and that's the point.
+    </p>
+
+    <!-- Pipeline diagram -->
+    <div class="mt-20" data-reveal-group>
+      <ol class="flex flex-col md:flex-row md:items-start">
+        {
+          stages.map((stage, i) => (
+            <>
+              <li class="flex-1" data-reveal-item>
+                <div class="border border-line px-4 py-4 text-center">
+                  <span class="font-mono text-xs uppercase tracking-[0.15em] text-fg">{stage.name}</span>
+                </div>
+                <p class="mt-2 text-center font-mono text-[11px] text-muted">{stage.note}</p>
+              </li>
+              {i < stages.length - 1 && (
+                <li class="flex shrink-0 items-center justify-center py-2 md:px-1 md:py-0" aria-hidden="true">
+                  <svg class="hidden h-2 w-10 md:block" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <line x1="0" y1="5" x2="100" y2="5" stroke="#2A251F" stroke-width="2" />
+                    <line
+                      data-connector-dash
+                      x1="0"
+                      y1="5"
+                      x2="100"
+                      y2="5"
+                      stroke="#F0B429"
+                      stroke-width="2"
+                      stroke-dasharray="6 10"
+                    />
+                  </svg>
+                  <svg class="block h-8 w-2 md:hidden" viewBox="0 0 10 100" preserveAspectRatio="none">
+                    <line x1="5" y1="0" x2="5" y2="100" stroke="#2A251F" stroke-width="2" />
+                    <line
+                      data-connector-dash
+                      x1="5"
+                      y1="0"
+                      x2="5"
+                      y2="100"
+                      stroke="#F0B429"
+                      stroke-width="2"
+                      stroke-dasharray="6 10"
+                    />
+                  </svg>
+                </li>
+              )}
+            </>
+          ))
+        }
+      </ol>
+    </div>
+
+    <!-- Funnel -->
+    <div class="mt-24" data-reveal-group>
+      <h3 class="mb-8 font-mono text-xs uppercase tracking-[0.15em] text-muted">THE FUNNEL</h3>
+      <div class="space-y-6">
+        {
+          funnel.map((row) => (
+            <div data-reveal-item>
+              <p class="mb-2 font-mono text-sm text-fg">{row.label}</p>
+              <div class="h-3 w-full bg-line">
+                <div
+                  class:list={[
+                    'h-full min-w-[28px]',
+                    row.tone === 'accent' ? 'bg-accent' : 'bg-accent-dim',
+                  ]}
+                  style={`width:${row.width}%; transform-origin: left center;`}
+                  data-funnel-bar
+                />
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Survivor -->
+    <div class="mt-24" data-reveal-group>
+      <h3 class="mb-8 font-mono text-xs uppercase tracking-[0.15em] text-muted" data-reveal-item>
+        THE SURVIVOR — ORB_SESSION · XAUUSD H1
+      </h3>
+      <div class="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16">
+        <dl class="border-t border-line font-mono text-sm" data-reveal-item>
+          {
+            survivorStats.map((stat) => (
+              <div class="flex items-center justify-between border-b border-line py-3">
+                <dt class="text-muted">{stat.label}</dt>
+                <dd class="text-fg">{stat.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <div data-reveal-item>
+          <p class="font-display text-2xl font-semibold leading-snug text-fg">
+            Screen numbers flatter. The factory publishes what survives real spreads — 2.50 became 1.53, and
+            1.53 is the number that matters.
+          </p>
+          <p class="mt-6 text-muted">
+            Nineteen of twenty audited candidates failed the deflated-Sharpe gate. The one that passed was
+            retested on five months of locked holdout data it had never seen.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status line -->
+    <div class="mt-16 flex items-center gap-3 border border-line p-4" data-reveal-group>
+      <span class="h-2 w-2 shrink-0 bg-accent" data-status-dot aria-hidden="true"></span>
+      <p class="font-mono text-[13px] text-fg" data-reveal-item>
+        STATUS: preparing HolaPrime 2-step challenge under the validated strategy and risk ladder. Live results
+        will replace this line when they exist — not before.
+      </p>
+    </div>
+
+    <!-- Cockpit -->
+    <div class="mt-24" data-reveal-group>
+      <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.15em] text-muted" data-reveal-item>THE COCKPIT</h3>
+      <p class="mb-6 max-w-2xl text-muted" data-reveal-item>
+        A real-time dashboard watches every stage — equity, open risk, pipeline state — backed by MongoDB
+        Atlas.
+      </p>
+      <figure class="flex aspect-video items-center justify-center border border-line bg-elevated" data-reveal-item>
+        <figcaption class="font-mono text-xs uppercase tracking-[0.15em] text-muted">
+          [ cockpit screenshots — incoming ]
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>

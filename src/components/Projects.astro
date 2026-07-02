@@ -1,0 +1,80 @@
+---
+type Project = {
+  index: string;
+  title: string;
+  body: string;
+  tag: string;
+  href?: string;
+  external?: boolean;
+};
+
+const projects: Project[] = [
+  {
+    index: '01',
+    title: 'Strategy Factory',
+    body: 'Autonomous research-to-rejection pipeline. MT5 in Docker, vectorbt screening, DSR audit, locked holdouts, three judging profiles.',
+    tag: 'PYTHON · DOCKER · VECTORBT',
+    href: '#factory',
+  },
+  {
+    index: '02',
+    title: 'Trading Cockpit',
+    body: 'Real-time command view of the factory: equity, open risk, stage-by-stage pipeline state. MongoDB Atlas backend, animated pipeline UI.',
+    tag: 'FASTAPI · MONGODB · ECHARTS',
+  },
+  {
+    index: '03',
+    title: 'Claude-brain',
+    body: 'A self-evolving memory system for AI-assisted work: knowledge graphs, an Obsidian vault, and multi-agent orchestration with cost-tiered model routing.',
+    tag: 'MCP · KNOWLEDGE GRAPHS',
+    href: 'https://github.com/ychetra/claude-brain',
+    external: true,
+  },
+  {
+    index: '04',
+    title: 'The Risk Ladder',
+    body: 'Prop-firm discipline as code: 1% → 0.5% step-down sizing, two-loss daily stop, hard kill-switch. Encoded once, enforced always.',
+    tag: 'RISK · MQL5 · PYTHON',
+  },
+];
+---
+
+<section id="projects" aria-labelledby="projects-heading" class="py-24 md:py-32">
+  <div class="mx-auto max-w-6xl px-6 md:px-10">
+    <h2 id="projects-heading" class="sr-only">Projects</h2>
+    <p class="mb-10 font-mono text-xs uppercase tracking-[0.25em] text-muted"><span class="text-accent">// </span>PROJECTS</p>
+
+    <div class="grid grid-cols-1 gap-px bg-line sm:grid-cols-2" data-reveal-group>
+      {
+        projects.map((project) => {
+          const Tag = project.href ? 'a' : 'article';
+          const linkProps = project.href
+            ? {
+                href: project.href,
+                ...(project.external ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
+              }
+            : {};
+          return (
+            <Tag
+              class="project-card group flex flex-col justify-between bg-bg p-8 transition-colors duration-300 hover:bg-surface"
+              data-reveal-item
+              {...linkProps}
+            >
+              <div>
+                <span class="mb-6 block font-mono text-sm text-accent transition-transform duration-300 group-hover:translate-x-1">
+                  {project.index}
+                </span>
+                <h3 class="mb-3 font-display text-2xl text-fg transition-colors duration-300 group-hover:text-accent">
+                  {project.title}
+                  {project.external && <span class="sr-only"> (opens in new tab)</span>}
+                </h3>
+                <p class="text-[0.95rem] text-muted">{project.body}</p>
+              </div>
+              <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">{project.tag}</p>
+            </Tag>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>chetra.xyz — design tokens preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============ VARIANT A — AMBER TERMINAL (recommended) ============ */
+  .variant-a {
+    --bg: #0B0A08;
+    --surface: #141210;
+    --elevated: #1C1916;
+    --border: #2A251F;
+    --fg: #EDE6DA;
+    --muted: #8F8577;
+    --accent: #F0B429;
+    --accent-dim: #9C7418;
+    --signal-up: #3FCF8E;
+    --signal-down: #E5484D;
+  }
+  /* ============ VARIANT B — COLD INK ============ */
+  .variant-b {
+    --bg: #0A0B0F;
+    --surface: #12141B;
+    --elevated: #1A1D27;
+    --border: #232735;
+    --fg: #E6E9F2;
+    --muted: #8A92A6;
+    --accent: #8B8DF2;
+    --accent-dim: #5A5CB8;
+    --signal-up: #3FCF8E;
+    --signal-down: #E5484D;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050505; color: #EDE6DA; font-family: 'Instrument Sans', sans-serif; }
+
+  .variant { background: var(--bg); color: var(--fg); padding: 4rem 3rem 5rem; border-bottom: 1px solid #333; }
+  .variant-label { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 3rem; }
+
+  /* hero mock — asymmetric editorial */
+  .hero { display: grid; grid-template-columns: 7fr 5fr; gap: 3rem; align-items: end; margin-bottom: 4rem; }
+  .hero h1 { font-family: 'Fraunces', serif; font-weight: 900; font-size: clamp(3rem, 8vw, 6.5rem); line-height: 0.95; letter-spacing: -0.03em; }
+  .hero h1 .accent { color: var(--accent); font-style: italic; font-weight: 600; }
+  .hero .sub { font-size: 1.125rem; color: var(--muted); line-height: 1.6; max-width: 42ch; }
+  .hero .sub strong { color: var(--fg); font-weight: 500; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; display: block; }
+  .kicker::before { content: "// "; color: var(--accent); }
+
+  /* metric cards */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 4rem; }
+  .metric { background: var(--surface); padding: 1.5rem; }
+  .metric .label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+  .metric .value { font-family: 'Fraunces', serif; font-size: 2.25rem; font-weight: 600; letter-spacing: -0.02em; }
+  .metric .value.up { color: var(--signal-up); }
+  .metric .value.down { color: var(--signal-down); }
+  .metric .note { font-size: 12px; color: var(--muted); margin-top: 0.5rem; }
+
+  /* type specimen */
+  .specimen { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem; }
+  .spec-block h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 2rem; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .spec-block p { color: var(--muted); line-height: 1.7; font-size: 1rem; }
+  .spec-block p em { color: var(--fg); font-style: normal; border-bottom: 1px solid var(--accent); }
+  .mono-demo { font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; line-height: 1.9; }
+  .mono-demo .g { color: var(--signal-up); } .mono-demo .r { color: var(--signal-down); } .mono-demo .a { color: var(--accent); } .mono-demo .m { color: var(--muted); }
+
+  /* swatches */
+  .swatches { display: flex; gap: 0; }
+  .swatch { flex: 1; height: 72px; position: relative; }
+  .swatch span { position: absolute; bottom: 6px; left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.05em; }
+  .btn { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bg); background: var(--accent); padding: 0.9rem 2rem; text-decoration: none; margin-top: 1.5rem; }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--border); margin-left: 0.75rem; }
+
+  @media (max-width: 768px) {
+    .variant { padding: 2.5rem 1.25rem; }
+    .hero, .specimen { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= VARIANT A ================= -->
+<section class="variant variant-a">
+  <div class="variant-label">Variant A — Amber Terminal · warm ink + phosphor amber · recommended</div>
+
+  <div class="hero">
+    <div>
+      <span class="kicker">Chetra — Phnom Penh · Systematic Day Trader</span>
+      <h1>Discipline,<br><span class="accent">engineered.</span></h1>
+    </div>
+    <div>
+      <p class="sub">I build the machines that keep me disciplined. An autonomous strategy factory — <strong>19+ strategies screened</strong>, anti-overfit gates, locked holdouts — and a risk ladder that <strong>never negotiates</strong>.</p>
+      <a class="btn" href="#">View track record</a><a class="btn ghost" href="#">Contact</a>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">Sharpe (holdout)</div><div class="value">—</div><div class="note">sample slot — real number pending</div></div>
+    <div class="metric"><div class="label">Max drawdown</div><div class="value down">—</div><div class="note">sample slot</div></div>
+    <div class="metric"><div class="label">Strategies passed</div><div class="value up">—</div><div class="note">of 19 screened</div></div>
+    <div class="metric"><div class="label">Daily stop</div><div class="value">2<span style="font-size:1.25rem">loss</span></div><div class="note">hard rule, kill-switch armed</div></div>
+  </div>
+
+  <div class="specimen">
+    <div class="spec-block">
+      <h2>Fraunces — display serif</h2>
+      <p>Body runs in Instrument Sans. Quiet, precise, reads clean at 16–18px. <em>Key claims get an amber underline</em> — no bold shouting. Every number on this site comes from validated runs.</p>
+    </div>
+    <div class="mono-demo">
+      <span class="m">$</span> <span class="a">factory</span> validate --holdout locked<br>
+      <span class="g">✓ PASS</span> ema_cross_gbpusd &nbsp;<span class="m">DSR 0.97</span><br>
+      <span class="r">✗ FAIL</span> breakout_xauusd &nbsp;&nbsp;<span class="m">overfit gate</span><br>
+      <span class="m">JetBrains Mono — data, labels, terminal moments</span>
+    </div>
+  </div>
+
+  <div class="swatches">
+    <div class="swatch" style="background:#0B0A08"><span style="color:#8F8577">#0B0A08 bg</span></div>
+    <div class="swatch" style="background:#141210"><span style="color:#8F8577">#141210 surface</span></div>
+    <div class="swatch" style="background:#2A251F"><span style="color:#EDE6DA">#2A251F border</span></div>
+    <div class="swatch" style="background:#EDE6DA"><span style="color:#0B0A08">#EDE6DA fg</span></div>
+    <div class="swatch" style="background:#F0B429"><span style="color:#0B0A08">#F0B429 accent</span></div>
+    <div class="swatch" style="background:#3FCF8E"><span style="color:#0B0A08">#3FCF8E up</span></div>
+    <div class="swatch" style="background:#E5484D"><span style="color:#0B0A08">#E5484D down</span></div>
+  </div>
+</section>
+
+<!-- ================= VARIANT B ================= -->
+<section class="variant variant-b">
+  <div class="variant-label">Variant B — Cold Ink · blue-black + periwinkle signal</div>
+
+  <div class="hero">
+    <div>
+      <span class="kicker">Chetra — Phnom Penh · Systematic Day Trader</span>
+      <h1>Discipline,<br><span class="accent">engineered.</span></h1>
+    </div>
+    <div>
+      <p class="sub">I build the machines that keep me disciplined. An autonomous strategy factory — <strong>19+ strategies screened</strong>, anti-overfit gates, locked holdouts — and a risk ladder that <strong>never negotiates</strong>.</p>
+      <a class="btn" href="#">View track record</a><a class="btn ghost" href="#">Contact</a>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">Sharpe (holdout)</div><div class="value">—</div><div class="note">sample slot — real number pending</div></div>
+    <div class="metric"><div class="label">Max drawdown</div><div class="value down">—</div><div class="note">sample slot</div></div>
+    <div class="metric"><div class="label">Strategies passed</div><div class="value up">—</div><div class="note">of 19 screened</div></div>
+    <div class="metric"><div class="label">Daily stop</div><div class="value">2<span style="font-size:1.25rem">loss</span></div><div class="note">hard rule, kill-switch armed</div></div>
+  </div>
+
+  <div class="swatches">
+    <div class="swatch" style="background:#0A0B0F"><span style="color:#8A92A6">#0A0B0F bg</span></div>
+    <div class="swatch" style="background:#12141B"><span style="color:#8A92A6">#12141B surface</span></div>
+    <div class="swatch" style="background:#232735"><span style="color:#E6E9F2">#232735 border</span></div>
+    <div class="swatch" style="background:#E6E9F2"><span style="color:#0A0B0F">#E6E9F2 fg</span></div>
+    <div class="swatch" style="background:#8B8DF2"><span style="color:#0A0B0F">#8B8DF2 accent</span></div>
+    <div class="swatch" style="background:#3FCF8E"><span style="color:#0A0B0F">#3FCF8E up</span></div>
+    <div class="swatch" style="background:#E5484D"><span style="color:#0A0B0F">#E5484D down</span></div>
+  </div>
+</section>
+
+</body>
+</html>
