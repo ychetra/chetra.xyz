@@ -32,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const PROJECTS_DIR = path.join(ROOT, 'src/content/projects');
+const NOTES_DIR = path.join(ROOT, 'src/content/notes');
 const OUT_DIR = path.join(ROOT, 'public/og');
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
@@ -67,6 +68,22 @@ function getFeaturedSlugs() {
     if (fm.tier === 'featured' && !isDraft) {
       slugs.push(fm.slug || file.replace(/\.md$/, ''));
     }
+  }
+  return slugs.sort();
+}
+
+function getNoteSlugs() {
+  let files;
+  try {
+    files = readdirSync(NOTES_DIR).filter((f) => f.endsWith('.md'));
+  } catch {
+    return []; // no notes dir yet
+  }
+  const slugs = [];
+  for (const file of files) {
+    const raw = readFileSync(path.join(NOTES_DIR, file), 'utf-8');
+    const fm = parseFrontmatter(raw);
+    if (fm.draft !== 'true') slugs.push(file.replace(/\.md$/, ''));
   }
   return slugs.sort();
 }
@@ -125,7 +142,7 @@ function main() {
 
   mkdirSync(OUT_DIR, { recursive: true });
 
-  const slugs = getFeaturedSlugs();
+  const slugs = [...getFeaturedSlugs(), ...getNoteSlugs()];
   if (slugs.length === 0) {
     console.error('✗ No featured, non-draft projects found in src/content/projects/.');
     process.exit(1);

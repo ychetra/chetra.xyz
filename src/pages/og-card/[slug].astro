@@ -25,27 +25,52 @@ import '@fontsource-variable/instrument-sans';
 import '@fontsource-variable/jetbrains-mono';
 
 export async function getStaticPaths() {
-  const projects = await getCollection('projects', ({ data }) => data.tier === 'featured' && !data.draft);
-  const sorted = [...projects].sort(
-    (a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year)
-  );
+  const CATEGORY_LABELS: Record<string, string> = {
+    trading: 'Trading',
+    'ai-systems': 'AI Systems',
+    iot: 'IoT',
+    web: 'Web',
+    other: 'Other',
+  };
 
-  return sorted.map((project) => ({
-    params: { slug: project.data.slug ?? project.id },
-    props: { project },
-  }));
+  const projects = await getCollection('projects', ({ data }) => data.tier === 'featured' && !data.draft);
+  const projectPaths = [...projects]
+    .sort((a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year))
+    .map((project) => ({
+      params: { slug: project.data.slug ?? project.id },
+      props: {
+        card: {
+          kicker: `${CATEGORY_LABELS[project.data.category] ?? project.data.category} · ${project.data.year}`,
+          title: project.data.title,
+          tagline: project.data.tagline,
+          footerItems: project.data.stack,
+          status: project.data.status,
+        },
+      },
+    }));
+
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  const notePaths = notes.map((note) => {
+    const date = new Date(note.data.date);
+    const dateLabel = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    return {
+      params: { slug: note.id },
+      props: {
+        card: {
+          kicker: `Notes · ${dateLabel}`,
+          title: note.data.title,
+          tagline: note.data.description,
+          footerItems: ['Writeup', dateLabel],
+          status: null,
+        },
+      },
+    };
+  });
+
+  return [...projectPaths, ...notePaths];
 }
 
-const { project } = Astro.props;
-const { data } = project;
-
-const CATEGORY_LABELS: Record<string, string> = {
-  trading: 'Trading',
-  'ai-systems': 'AI Systems',
-  iot: 'IoT',
-  web: 'Web',
-  other: 'Other',
-};
+const { card } = Astro.props;
 
 // Same tone mapping as src/pages/work/[slug].astro's STATUS_TONE, just
 // pointed at hex values instead of Tailwind classes.
@@ -56,8 +81,7 @@ const STATUS_COLOR: Record<string, string> = {
   archived: 'var(--og-muted)',
   private: 'var(--og-muted)',
 };
-const statusColor = STATUS_COLOR[data.status] ?? 'var(--og-muted)';
-const stack = data.stack;
+const statusColor = card.status ? (STATUS_COLOR[card.status] ?? 'var(--og-muted)') : null;
 ---
 
 <!doctype html>
@@ -65,7 +89,7 @@ const stack = data.stack;
   <head>
     <meta charset="UTF-8" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>OG card — {data.title}</title>
+    <title>OG card — {card.title}</title>
   </head>
   <body>
     <div class="card">
@@ -82,27 +106,27 @@ const stack = data.stack;
 
       <div class="content">
         <div class="top">
-          <p class="kicker"><span class="accent-text">// </span>{CATEGORY_LABELS[data.category] ?? data.category} · {data.year}</p>
+          <p class="kicker"><span class="accent-text">// </span>{card.kicker}</p>
           <p class="wordmark">chetra.xyz<span class="accent-text">.</span></p>
         </div>
 
         <div class="mid">
-          <h1 class="title">{data.title}</h1>
-          <p class="tagline">{data.tagline}</p>
+          <h1 class="title">{card.title}</h1>
+          <p class="tagline">{card.tagline}</p>
         </div>
 
         <div class="bottom">
           <div class="baseline"></div>
           <div class="bottom-row">
             <p class="stack">
-              {stack.map((item, i) => (
+              {card.footerItems.map((item, i) => (
                 <>
                   <span class="stack-item">{item.toUpperCase()}</span>
-                  {i < stack.length - 1 && <span class="accent-text stack-dot">·</span>}
+                  {i < card.footerItems.length - 1 && <span class="accent-text stack-dot">·</span>}
                 </>
               ))}
             </p>
-            <span class="status-chip" style={{ color: statusColor }}>{data.status}</span>
+            {card.status && <span class="status-chip" style={{ color: statusColor }}>{card.status}</span>}
           </div>
         </div>
       </div>
