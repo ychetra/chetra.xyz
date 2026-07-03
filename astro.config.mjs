@@ -5,7 +5,13 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://chetra.xyz',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // /og-card/* are build-time render helpers for social share images,
+      // not real pages — keep them out of the sitemap.
+      filter: (page) => !page.includes('/og-card/'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
     server: {

@@ -11,14 +11,20 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
 }
 
 const {
   title = 'Chetra — Discipline, engineered.',
   description = 'Systematic day trader in Phnom Penh. I build autonomous trading systems: a strategy factory with anti-overfit gates, real-spread validation, and a risk ladder that never negotiates.',
+  ogImage = '/og.png',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://chetra.xyz');
+// Social scrapers (OG/Twitter) require absolute image URLs — build one from
+// the configured `site` regardless of whether ogImage is passed as a root-
+// relative path (the common case) or already-absolute.
+const ogImageURL = new URL(ogImage, Astro.site ?? 'https://chetra.xyz');
 ---
 
 <!doctype html>
@@ -33,13 +39,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://chetra.x
 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://chetra.xyz/og.png" />
+    <meta property="og:image" content={ogImageURL} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="https://chetra.xyz/og.png" />
+    <meta name="twitter:image" content={ogImageURL} />
 
     <link rel="preload" as="font" type="font/woff2" href={frauncesWoff2} crossorigin />
 

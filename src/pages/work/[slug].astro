@@ -24,6 +24,7 @@ const { Content } = await render(project);
 
 const title = `${data.title} — Chetra`;
 const description = data.tagline;
+const slug = data.slug ?? project.id;
 
 const CATEGORY_LABELS: Record<string, string> = {
   trading: 'Trading',
@@ -45,7 +46,7 @@ function slugFor(p: typeof prev) {
 }
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} ogImage={`/og/${slug}.png`}>
   <article class="px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-40">
     <div class="mx-auto max-w-3xl">
       <a

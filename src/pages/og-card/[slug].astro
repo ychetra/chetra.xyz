@@ -1,0 +1,264 @@
+---
+/*
+  OG image render route — NOT a real page. One fixed 1200x630 card per
+  featured project, screenshotted by scripts/gen-og.mjs into public/og/.
+  Excluded from the sitemap (astro.config.mjs sitemap filter) and never
+  linked from the site nav — Base.astro is intentionally NOT used here
+  (no Nav/Footer/motion.js): this route needs a bare, exact-pixel document.
+
+  Tokens are hand-mirrored from src/styles/global.css's @theme block rather
+  than importing that file, so this route stays fully self-contained and
+  its layout math (px, not vw/clamp) stays predictable for a screenshot
+  taken at a fixed viewport. Keep the --og-* values below in sync with
+  src/styles/global.css if the Amber Terminal palette ever changes.
+
+  Fonts are the exact fontsource imports Base.astro uses. fontsource's
+  *-variable packages register the family as "<Name> Variable" (e.g.
+  "Fraunces Variable"), not the bare "Fraunces" — see Base.astro's
+  html:root comment — so font-family below references the "Variable"
+  names directly instead of going through a CSS custom property.
+*/
+import { getCollection } from 'astro:content';
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/fraunces/wght-italic.css';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource-variable/jetbrains-mono';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => data.tier === 'featured' && !data.draft);
+  const sorted = [...projects].sort(
+    (a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year)
+  );
+
+  return sorted.map((project) => ({
+    params: { slug: project.data.slug ?? project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { data } = project;
+
+const CATEGORY_LABELS: Record<string, string> = {
+  trading: 'Trading',
+  'ai-systems': 'AI Systems',
+  iot: 'IoT',
+  web: 'Web',
+  other: 'Other',
+};
+
+// Same tone mapping as src/pages/work/[slug].astro's STATUS_TONE, just
+// pointed at hex values instead of Tailwind classes.
+const STATUS_COLOR: Record<string, string> = {
+  shipped: 'var(--og-up)',
+  active: 'var(--og-accent)',
+  wip: 'var(--og-muted)',
+  archived: 'var(--og-muted)',
+  private: 'var(--og-muted)',
+};
+const statusColor = STATUS_COLOR[data.status] ?? 'var(--og-muted)';
+const stack = data.stack;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>OG card — {data.title}</title>
+  </head>
+  <body>
+    <div class="card">
+      <svg class="curve" viewBox="0 0 1200 630" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          d="M480,540 L560,524 L640,530 L720,492 L800,502 L880,458 L960,468 L1040,418 L1120,428 L1200,384"
+          fill="none"
+          stroke="var(--og-accent)"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+      <div class="content">
+        <div class="top">
+          <p class="kicker"><span class="accent-text">// </span>{CATEGORY_LABELS[data.category] ?? data.category} · {data.year}</p>
+          <p class="wordmark">chetra.xyz<span class="accent-text">.</span></p>
+        </div>
+
+        <div class="mid">
+          <h1 class="title">{data.title}</h1>
+          <p class="tagline">{data.tagline}</p>
+        </div>
+
+        <div class="bottom">
+          <div class="baseline"></div>
+          <div class="bottom-row">
+            <p class="stack">
+              {stack.map((item, i) => (
+                <>
+                  <span class="stack-item">{item.toUpperCase()}</span>
+                  {i < stack.length - 1 && <span class="accent-text stack-dot">·</span>}
+                </>
+              ))}
+            </p>
+            <span class="status-chip" style={{ color: statusColor }}>{data.status}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  :root {
+    /* Mirrors the Amber Terminal tokens in src/styles/global.css */
+    --og-bg: #0b0a08;
+    --og-fg: #ede6da;
+    --og-muted: #8f8577;
+    --og-accent: #f0b429;
+    --og-line: #2a251f;
+    --og-up: #3fcf8e;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    width: 1200px;
+    height: 630px;
+    background: var(--og-bg);
+    overflow: hidden;
+  }
+
+  .card {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--og-bg);
+  }
+
+  .curve {
+    position: absolute;
+    inset: 0;
+    width: 1200px;
+    height: 630px;
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 56px 72px 48px;
+  }
+
+  .top {
+    display: flex;
+    flex-shrink: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .accent-text {
+    color: var(--og-accent);
+  }
+
+  .kicker {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 17px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--og-muted);
+  }
+
+  .wordmark {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 18px;
+    color: var(--og-fg);
+  }
+
+  .mid {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .title {
+    max-width: 1056px;
+    font-family: 'Fraunces Variable', Georgia, serif;
+    font-weight: 900;
+    font-size: 78px;
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    color: var(--og-fg);
+  }
+
+  .tagline {
+    margin-top: 22px;
+    max-width: 920px;
+    font-family: 'Instrument Sans Variable', system-ui, sans-serif;
+    font-size: 24px;
+    line-height: 1.5;
+    color: var(--og-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .bottom {
+    flex-shrink: 0;
+  }
+
+  .baseline {
+    width: 100%;
+    height: 1px;
+    background: var(--og-accent);
+    opacity: 0.5;
+  }
+
+  .bottom-row {
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .stack {
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--og-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stack-dot {
+    margin: 0 10px;
+  }
+
+  .status-chip {
+    flex-shrink: 0;
+    border: 1px solid var(--og-line);
+    padding: 7px 16px;
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>
