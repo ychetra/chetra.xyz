@@ -1,6 +1,6 @@
 ---
 title: "Home Assistant"
-tagline: "TODO(chetra): describe — private repo, no README, purpose inferred only from name."
+tagline: "A self-hosted Home Assistant instance — custom automations bridge Tuya devices and sensors to MQTT, alongside HACS and localtuya integrations."
 year: "2024"
 tier: "archive"
 category: "iot"

@@ -1,6 +1,6 @@
 ---
 title: "autonomous_bot"
-tagline: "TODO(chetra): describe — private repo, no README."
+tagline: "A FastAPI backend bridging an MT5 trading engine to a Next.js/Capacitor dashboard via WebSockets, with a signal-approval queue before trades execute."
 year: "2026"
 tier: "archive"
 category: "trading"

@@ -1,6 +1,6 @@
 ---
 title: "InE"
-tagline: "TODO(chetra): describe — Flutter app, two repo versions (InE, ine_v2), both unedited boilerplate."
+tagline: "A personal income/expense tracker — Flutter and Supabase, with biometric login; two repo versions (InE, ine_v2) track a from-scratch UI rewrite."
 year: "2026"
 tier: "archive"
 category: "other"

@@ -31,8 +31,4 @@ MCP servers for a new machine in one command.
 
 Actively maintained — updated continuously as skills and notes accumulate.
 
-`TODO(chetra): "multi-agent orchestration" and "cost-tiered model routing"
-aren't confirmed in what's readable of this repo's README — flag specifics
-if you want them included here.`
-
 Private repository.

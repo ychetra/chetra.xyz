@@ -1,6 +1,6 @@
 ---
 title: "PipBoost"
-tagline: "TODO(chetra): describe — repo README is unedited GitLab boilerplate, purpose unclear."
+tagline: "A trading-journal SaaS — trade logging, broker sync, analytics, and prop-firm challenge tracking, built on Next.js and Prisma."
 year: "2026"
 tier: "archive"
 category: "other"

@@ -1,6 +1,6 @@
 ---
 title: "Product-Authenticity"
-tagline: "TODO(chetra): describe — public repo, no README or description."
+tagline: "An Ethereum dApp for product authenticity — a Solidity registry contract keyed to IPFS hashes, verified through a React/ethers.js frontend via MetaMask."
 year: "2025"
 tier: "archive"
 category: "web"

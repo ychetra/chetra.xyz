@@ -61,8 +61,8 @@ bracket shape, not size.
 
 ## Status / results
 
-Actively developed research pipeline.
-
-`TODO(chetra): publish validated Sharpe / walk-forward results once a
-holdout run is finalized — none are in the repo yet, so none are claimed
-here.`
+Actively developed research pipeline. The holdout hasn't been revealed on a
+frozen model yet, so no Sharpe ratio, win rate, or walk-forward return
+numbers are published here — none exist in the repo to report. This section
+will be updated with real results once a holdout run is finalized and worth
+standing behind.

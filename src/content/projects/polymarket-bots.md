@@ -52,7 +52,6 @@ hardcoded.
 ## Status / results
 
 Live trading code paths exist in the repo (`momentum_live.py`,
-`sol_edge_live.py`) alongside backtest and edge-validation scripts.
-
-`TODO(chetra): publish validated win-rate / PnL once there's a result worth
-standing behind — nothing performance-related is claimed on this page.`
+`sol_edge_live.py`) alongside backtest and edge-validation scripts. No
+win-rate or PnL figures are published on this page yet — they'll be added
+once there's a validated result worth standing behind.

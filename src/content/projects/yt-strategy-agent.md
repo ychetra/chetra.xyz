@@ -33,7 +33,5 @@ manual install.
 
 ## Status
 
-Private repository.
-
-`TODO(chetra): confirm current status (channels watched, uptime) before
-publishing further detail.`
+Private repository. Specific figures — how many channels it currently
+watches, uptime — aren't published on this page.
