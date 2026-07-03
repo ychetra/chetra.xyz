@@ -103,9 +103,12 @@ function slugFor(p: typeof prev) {
 
       {
         data.metrics && data.metrics.length > 0 && (
-          <div class="mt-16 grid grid-cols-2 gap-px bg-line md:grid-cols-4" data-reveal-group>
+          <div
+            class="mt-16 grid grid-cols-2 border-l border-t border-line md:grid-cols-4"
+            data-reveal-group
+          >
             {data.metrics.map((metric) => (
-              <div class="bg-surface p-6" data-reveal-item>
+              <div class="border-b border-r border-line bg-surface p-6" data-reveal-item>
                 <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">{metric.label}</p>
                 <p
                   class:list={[
