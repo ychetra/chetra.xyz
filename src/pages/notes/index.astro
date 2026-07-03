@@ -1,19 +1,65 @@
 ---
+import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 
 const title = 'Notes — Chetra';
 const description =
-  "Writeups are coming: the anti-overfit gate design, and why the risk ladder never negotiates. No schedule promised — they'll be published when they're true.";
+  "Writeups on the systems behind the work: the anti-overfit gate design, and why the risk ladder never negotiates.";
+
+const allNotes = await getCollection('notes', ({ data }) => !data.draft);
+const posts = allNotes.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
 ---
 
 <Base title={title} description={description}>
-  <section aria-labelledby="notes-heading" class="mx-auto flex min-h-[70svh] max-w-3xl flex-col justify-center px-6 py-32 md:px-10">
+  <section
+    aria-labelledby="notes-heading"
+    class:list={[
+      'mx-auto flex max-w-3xl flex-col px-6 py-32 md:px-10',
+      posts.length === 0 && 'min-h-[70svh] justify-center',
+    ]}
+  >
     <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted"><span class="text-accent">// </span>NOTES</p>
     <h1 id="notes-heading" class="mb-8 font-display text-5xl font-black leading-[0.95] md:text-7xl">Notes</h1>
-    <p class="mb-10 max-w-xl text-lg text-muted">
-      Writeups are coming: the anti-overfit gate design, and why the risk ladder never negotiates. No schedule
-      promised — they'll be published when they're true.
-    </p>
-    <a href="/" class="w-fit font-mono text-sm text-accent underline underline-offset-4">← Back home</a>
+
+    {
+      posts.length === 0 ? (
+        <>
+          <p class="mb-10 max-w-xl text-lg text-muted">
+            Writeups are coming: the anti-overfit gate design, and why the risk ladder never negotiates. No schedule
+            promised — they'll be published when they're true.
+          </p>
+          <a href="/" class="w-fit font-mono text-sm text-accent underline underline-offset-4">← Back home</a>
+        </>
+      ) : (
+        <>
+          <p class="mb-14 max-w-xl text-lg text-muted">
+            Writeups on the systems behind the work. No schedule promised — they're published when they're true.
+          </p>
+          <ul class="border-y border-line" data-reveal-group>
+            {posts.map((post) => (
+              <li class="border-b border-line py-8 last:border-b-0" data-reveal-item>
+                <a href={`/notes/${post.id}`} class="group block">
+                  <p class="mb-3 font-mono text-xs uppercase tracking-[0.1em] text-muted">
+                    <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+                  </p>
+                  <h2 class="mb-3 font-display text-2xl text-fg transition-colors duration-300 group-hover:text-accent md:text-3xl">
+                    {post.data.title}
+                  </h2>
+                  <p class="max-w-2xl text-[0.95rem] text-muted">{post.data.description}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a href="/" class="mt-14 w-fit font-mono text-sm text-accent underline underline-offset-4">← Back home</a>
+        </>
+      )
+    }
   </section>
 </Base>

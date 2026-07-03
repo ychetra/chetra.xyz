@@ -1,0 +1,176 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('notes', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { data } = post;
+const { Content } = await render(post);
+
+const title = `${data.title} — Chetra`;
+const description = data.description;
+
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<Base title={title} description={description}>
+  <article class="px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-40">
+    <div class="mx-auto max-w-3xl">
+      <a
+        href="/notes"
+        class="mb-10 inline-block font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
+      >
+        ← All notes
+      </a>
+
+      <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+        <span class="text-accent">// </span>NOTES · <time datetime={data.date.toISOString()}>{dateFormatter.format(data.date)}</time>
+      </p>
+      <h1
+        class="font-display font-black leading-[0.98] text-fg"
+        style="font-size:clamp(2.5rem,6vw,4.5rem)"
+      >
+        {data.title}
+      </h1>
+      <p class="mt-6 text-lg text-muted">{data.description}</p>
+
+      <div class="project-prose mt-16 max-w-[68ch]">
+        <Content />
+      </div>
+
+      <nav class="mt-24 border-t border-line pt-10">
+        <a
+          href="/notes"
+          class="font-mono text-xs uppercase tracking-[0.15em] text-accent underline underline-offset-4"
+        >
+          All notes
+        </a>
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<style is:global>
+  /*
+    Astro inlines <style is:global> per-page rather than sharing a bundle
+    across routes (confirmed empirically: work/[slug].astro's .project-prose
+    rules only appear in that page's own inlined <style>, not in any shared
+    CSS chunk). This block is therefore a deliberate duplicate of
+    work/[slug].astro's .project-prose rules, kept in sync by hand so
+    <Content /> markdown renders identically on both /work/* and /notes/*.
+  */
+  .project-prose h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-fg);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .project-prose h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-fg);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-prose p {
+    color: var(--color-muted);
+    line-height: 1.75;
+    margin-bottom: 1.25rem;
+  }
+
+  .project-prose a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .project-prose strong {
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+
+  .project-prose ul,
+  .project-prose ol {
+    color: var(--color-muted);
+    margin: 0 0 1.25rem 1.25rem;
+  }
+
+  .project-prose ul {
+    list-style: disc;
+  }
+
+  .project-prose ol {
+    list-style: decimal;
+  }
+
+  .project-prose li {
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+  }
+
+  .project-prose li::marker {
+    color: var(--color-accent);
+  }
+
+  .project-prose blockquote {
+    border-left: 2px solid var(--color-accent);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: var(--color-fg);
+  }
+
+  .project-prose code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    padding: 0.15em 0.4em;
+    color: var(--color-fg);
+  }
+
+  .project-prose pre {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    padding: 1rem;
+    overflow-x: auto;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-prose pre code {
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  .project-prose hr {
+    border: none;
+    border-top: 1px solid var(--color-line);
+    margin: 2.5rem 0;
+  }
+</style>

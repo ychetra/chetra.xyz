@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="404 — Chetra"
+  description="Page not found. The strategy for this URL failed the audit."
+>
+  <section class="flex min-h-[80svh] items-center px-6 md:px-10" aria-labelledby="nf-heading">
+    <div class="mx-auto w-full max-w-6xl">
+      <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+        <span class="text-accent">// </span>HTTP 404
+      </p>
+      <h1
+        id="nf-heading"
+        class="font-display font-black leading-[0.95] text-fg"
+        style="font-size:clamp(3rem,8vw,6.5rem)"
+      >
+        Rejected by<br /><span class="italic text-accent" style="font-weight:600">the gate.</span>
+      </h1>
+      <p class="mt-8 max-w-md text-lg text-muted">
+        This URL didn't survive validation — like 3,910 of 3,911 strategy candidates before it.
+      </p>
+      <div
+        class="mt-10 max-w-md border border-line bg-surface p-4 font-mono text-[13px] leading-relaxed"
+      >
+        <span class="text-muted">$</span> <span class="text-accent">factory</span> resolve
+        <span class="text-muted">{Astro.url?.pathname ?? '/…'}</span><br />
+        <span class="text-down">✗ FAIL</span> <span class="text-muted">route not found — no holdout data</span>
+      </div>
+      <div class="mt-10 flex flex-wrap gap-4">
+        <a
+          href="/"
+          class="bg-accent px-8 py-3.5 font-mono text-[13px] uppercase tracking-[0.15em] text-bg"
+        >
+          Back home
+        </a>
+        <a
+          href="/work"
+          class="border border-line px-8 py-3.5 font-mono text-[13px] uppercase tracking-[0.15em] text-fg transition-colors hover:border-accent"
+        >
+          View work
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

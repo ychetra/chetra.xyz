@@ -70,10 +70,10 @@ function clamp(val, min, max) {
   return Math.min(max, Math.max(min, val));
 }
 
-function positionNowDot(nowDot, x, y) {
+function positionNowDot(nowDot, y, vbH) {
   if (!nowDot) return;
-  nowDot.setAttribute('x', x - 3);
-  nowDot.setAttribute('y', y - 3);
+  // HTML overlay dot: percentage top against the equity panel, x pinned right.
+  nowDot.style.top = `${((y / vbH) * 100).toFixed(2)}%`;
 }
 
 /** After the draw-in completes, occasionally append a new point (rolling ~60pt window). */
@@ -92,7 +92,7 @@ function startEquityExtend(root, path, nowDot, vbW, vbH, topY, baseY) {
     ys.shift();
     ys.push(Number(next.toFixed(2)));
     path.setAttribute('d', buildPathD(ys, vbW));
-    positionNowDot(nowDot, vbW, ys[ys.length - 1]);
+    positionNowDot(nowDot, ys[ys.length - 1], vbH);
   }, 2500);
 }
 
