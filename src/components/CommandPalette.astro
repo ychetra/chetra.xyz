@@ -1,0 +1,104 @@
+---
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const featured = allProjects
+  .filter((p) => p.data.tier === 'featured')
+  .sort((a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year));
+
+const allNotes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+function slugFor(p: (typeof allProjects)[number]) {
+  return p.data.slug ?? p.id;
+}
+
+type Command = {
+  label: string;
+  href: string;
+  kind: 'nav' | 'external' | 'mailto' | 'download';
+};
+
+// Static command list, baked at build time from already-published content
+// collections -- no client-side fetch, no duplicate source of truth with
+// Projects.astro / notes/index.astro.
+const commands: Command[] = [
+  { label: 'Home', href: '/', kind: 'nav' },
+  { label: 'Work', href: '/work', kind: 'nav' },
+  ...featured.map((p) => ({ label: `work/${slugFor(p)}`, href: `/work/${slugFor(p)}`, kind: 'nav' as const })),
+  { label: 'Notes', href: '/notes', kind: 'nav' },
+  ...allNotes.map((n) => ({ label: `notes/${n.id}`, href: `/notes/${n.id}`, kind: 'nav' as const })),
+  { label: 'Tearsheet', href: '/tearsheet', kind: 'nav' },
+  { label: 'Download tearsheet PDF', href: '/tearsheet.pdf', kind: 'download' },
+  { label: 'Contact', href: '/#contact', kind: 'nav' },
+  { label: 'GitHub', href: 'https://github.com/ychetra', kind: 'external' },
+  { label: 'Email', href: 'mailto:hi@chetra.xyz', kind: 'mailto' },
+];
+---
+
+<!--
+  Rendered once via Base.astro on every page. Marked transition:persist so
+  the ClientRouter reuses this exact DOM node across client-side navs instead
+  of replacing it -- correct here because `commands` is derived from
+  site-wide content collections, not the current page, so the markup is
+  identical on every page anyway. palette.js binds its listeners to this node
+  exactly once (guarded by a module-level flag), which is simpler than
+  re-querying/re-binding on every astro:page-load and matches the same
+  bind-once pattern the persisted nav header already needs.
+-->
+<div
+  id="command-palette"
+  class="command-palette fixed inset-0 z-[70]"
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-label="Command palette"
+  transition:persist
+  transition:name="command-palette"
+>
+  <div class="absolute inset-0 bg-bg/80" data-palette-backdrop></div>
+  <div class="command-palette__panel relative mx-auto mt-[12vh] w-[92vw] max-w-lg border border-line bg-surface">
+    <div class="flex items-center gap-2 border-b border-line px-4 py-3">
+      <span class="font-mono text-sm text-accent" aria-hidden="true">&gt;</span>
+      <input
+        id="palette-input"
+        type="text"
+        class="w-full min-w-0 bg-transparent font-mono text-[13px] text-fg placeholder:text-muted focus:outline-none"
+        placeholder="Type a command…"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="palette-list"
+        aria-autocomplete="list"
+        aria-label="Command palette input"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      <kbd class="shrink-0 font-mono text-[10px] uppercase tracking-[0.1em] text-muted">Esc</kbd>
+    </div>
+    <ul id="palette-list" class="max-h-[50vh] overflow-y-auto" role="listbox" aria-label="Commands"></ul>
+    <p class="px-4 py-6 font-mono text-[13px] text-muted" data-palette-empty hidden>No matches</p>
+  </div>
+  <script type="application/json" id="palette-commands" set:html={JSON.stringify(commands)} />
+</div>
+
+<style>
+  .command-palette {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .command-palette.is-open {
+    opacity: 1;
+  }
+
+  .command-palette__panel {
+    transform: translateY(-8px);
+    transition: transform 0.15s ease;
+  }
+
+  .command-palette.is-open .command-palette__panel {
+    transform: translateY(0);
+  }
+</style>

@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from 'astro:transitions';
+import { fade } from 'astro:transitions';
 import '../styles/global.css';
 import '@fontsource-variable/fraunces';
 import '@fontsource-variable/fraunces/wght-italic.css';
@@ -7,6 +9,7 @@ import '@fontsource-variable/jetbrains-mono';
 import frauncesWoff2 from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 
 interface Props {
   title?: string;
@@ -32,6 +35,7 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://chetra.xyz');
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <ClientRouter />
     <meta name="theme-color" content="#0B0A08" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -54,12 +58,15 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://chetra.xyz');
   <body class="bg-bg text-fg font-body antialiased">
     <a href="#main" class="skip-link">Skip to content</a>
     <Nav />
-    <main id="main" tabindex="-1">
+    <CommandPalette />
+    <main id="main" tabindex="-1" transition:animate={fade({ duration: '0.35s' })}>
       <slot />
     </main>
     <Footer />
     <script>
       import '../scripts/motion.js';
+      import '../scripts/cockpit.js';
+      import '../scripts/palette.js';
     </script>
   </body>
 </html>

@@ -9,10 +9,30 @@ const stages = [
 ];
 
 const funnel = [
-  { label: '3,911 parameter trials', width: 100, tone: 'dim' },
-  { label: '2,192 combos ranked', width: 56, tone: 'dim' },
-  { label: '20 audited for overfit', width: 9, tone: 'dim' },
-  { label: '1 passed every gate', width: 2, tone: 'accent' },
+  {
+    label: '3,911 parameter trials',
+    width: 100,
+    tone: 'dim',
+    detail: 'vectorbt screen — clean-fill Sharpe, fast pass',
+  },
+  {
+    label: '2,192 combos ranked',
+    width: 56,
+    tone: 'dim',
+    detail: 'ranked by screen Sharpe — obvious failures cut',
+  },
+  {
+    label: '20 audited for overfit',
+    width: 9,
+    tone: 'dim',
+    detail: 'full DSR + holdout audit — expensive, selective',
+  },
+  {
+    label: '1 passed every gate',
+    width: 2,
+    tone: 'accent',
+    detail: 'ORB_SESSION · XAUUSD H1 — every gate cleared',
+  },
 ];
 
 const survivorStats = [
@@ -127,10 +147,16 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
       <h3 class="mb-8 font-mono text-xs uppercase tracking-[0.15em] text-muted">THE FUNNEL</h3>
       <div class="space-y-6">
         {
-          funnel.map((row) => (
-            <div data-reveal-item>
+          funnel.map((row, i) => (
+            <div
+              data-reveal-item
+              data-funnel-row
+              class="group relative w-fit max-w-full"
+              tabindex="0"
+              aria-describedby={`funnel-tip-${i}`}
+            >
               <p class="mb-2 font-mono text-sm text-fg">{row.label}</p>
-              <div class="h-3 w-full bg-line">
+              <div class="h-3 w-full min-w-[240px] bg-line sm:min-w-[320px]">
                 <div
                   class:list={[
                     'h-full min-w-[28px]',
@@ -140,6 +166,14 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
                   data-funnel-bar
                 />
               </div>
+              <p
+                id={`funnel-tip-${i}`}
+                role="tooltip"
+                data-funnel-tooltip
+                class="pointer-events-none absolute bottom-full left-0 z-10 mb-2 w-max max-w-[min(80vw,320px)] translate-y-1 border border-line bg-elevated px-3 py-2 font-mono text-[11px] text-fg opacity-0 transition duration-150 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 group-[.is-open]:translate-y-0 group-[.is-open]:opacity-100"
+              >
+                {row.detail}
+              </p>
             </div>
           ))
         }
@@ -344,7 +378,3 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
     </div>
   </div>
 </section>
-
-<script>
-  import '../scripts/cockpit.js';
-</script>

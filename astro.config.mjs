@@ -5,6 +5,10 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://chetra.xyz',
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
   integrations: [
     sitemap({
       // /og-card/* are build-time render helpers for social share images,

@@ -42,3 +42,27 @@ html {
   background: var(--color-accent);
   color: var(--color-bg);
 }
+
+/*
+  Scroll-progress hairline (notes/work detail pages only). Positioned above
+  the nav's border (nav is z-50) so it reads as a top-of-viewport indicator,
+  not folded under the nav. Driven purely by transform:scaleX from motion.js's
+  rAF-throttled scroll handler -- no width/layout writes. transform-origin is
+  pinned to the left edge so scaleX(0..1) reads as "filling left to right".
+*/
+[data-scroll-progress] {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-scroll-progress] {
+    display: none;
+  }
+}

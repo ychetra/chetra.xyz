@@ -1,19 +1,24 @@
 import { gsap } from 'gsap';
 
 /**
- * Live cockpit terminal (Factory.astro "THE COCKPIT" block).
+ * Live cockpit terminal (Factory.astro "THE COCKPIT" block, homepage only).
  *
- * Mirrors motion.js's conventions: reduced-motion early-return, data-attribute
- * hooks, GSAP for the one-off tweens. Fully self-contained — no dependency on
- * motion.js beyond the shared reduced-motion check pattern.
+ * Loaded from Base.astro (not Factory-scoped) so it runs on every
+ * astro:page-load regardless of which page module scripts happened to
+ * execute first -- Factory-scoped <script> tags don't reliably re-run under
+ * the ClientRouter. `initCockpit()` itself still no-ops instantly on any
+ * page without a [data-cockpit] root, so loading it everywhere costs
+ * nothing on pages that don't have a cockpit.
  *
- * The server-rendered markup already IS the final "reduced motion" frame
- * (line fully drawn, clock at a fixed seed time, AUDIT active, one log line
- * visible, now-dot solid). When motion is allowed, everything below just
- * animates on top of that same starting state — nothing is ever invisible.
+ * The [data-cockpit] root is NOT transition:persist -- it's swapped for a
+ * brand-new node (back at its SSR seed state: clock at 14:32:00, one log
+ * line, AUDIT active) every time the homepage is (re)loaded. That is
+ * intentional: it's what makes "cockpit still ticking at exactly 1s cadence
+ * after N home<->work round-trips" a meaningful, provable check -- each
+ * return to `/` starts exactly one fresh clock interval, and
+ * astro:before-swap guarantees the previous one was already cleared before
+ * that happens.
  */
-
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const CLOCK_SEED_SECONDS = 14 * 3600 + 32 * 60; // 14:32:00, matches the SSR markup
 
@@ -26,6 +31,27 @@ const LOG_LINES = [
   { time: '14:32:19', tag: 'compare', text: 'firm/real/crypto  1 survivor', status: null },
 ];
 const LOG_START_INDEX = 2; // must match the line baked into the SSR markup
+
+function reducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// --- Per-page-load teardown registries -------------------------------------
+// Reset (emptied) by teardown(), which astro:before-swap calls right before
+// the outgoing page's [data-cockpit] root is removed from the DOM.
+let intervalIds = [];
+let observer = null;
+let ctx = null;
+
+function trackInterval(id) {
+  intervalIds.push(id);
+  return id;
+}
+
+function clearAllIntervals() {
+  intervalIds.forEach((id) => clearInterval(id));
+  intervalIds = [];
+}
 
 function pad2(n) {
   return String(n).padStart(2, '0');
@@ -49,10 +75,12 @@ function startClock(root) {
   const el = root.querySelector('[data-cockpit-clock]');
   if (!el) return;
   let total = CLOCK_SEED_SECONDS;
-  setInterval(() => {
-    total += 1;
-    el.textContent = formatClock(total);
-  }, 1000);
+  trackInterval(
+    setInterval(() => {
+      total += 1;
+      el.textContent = formatClock(total);
+    }, 1000)
+  );
 }
 
 /** Rebuild the SVG path `d` string from a flat array of y-values (x is an even grid). */
@@ -86,14 +114,16 @@ function startEquityExtend(root, path, nowDot, vbW, vbH, topY, baseY) {
   }
   if (!ys.length) return;
 
-  setInterval(() => {
-    const last = ys[ys.length - 1];
-    const next = clamp(last + (Math.random() - 0.42) * 6, topY - 4, baseY + 4);
-    ys.shift();
-    ys.push(Number(next.toFixed(2)));
-    path.setAttribute('d', buildPathD(ys, vbW));
-    positionNowDot(nowDot, ys[ys.length - 1], vbH);
-  }, 2500);
+  trackInterval(
+    setInterval(() => {
+      const last = ys[ys.length - 1];
+      const next = clamp(last + (Math.random() - 0.42) * 6, topY - 4, baseY + 4);
+      ys.shift();
+      ys.push(Number(next.toFixed(2)));
+      path.setAttribute('d', buildPathD(ys, vbW));
+      positionNowDot(nowDot, ys[ys.length - 1], vbH);
+    }, 2500)
+  );
 }
 
 function startEquityDraw(root) {
@@ -145,13 +175,15 @@ function startPnlNudge(root) {
   let value = parseFloat(el.dataset.value || '0');
   if (Number.isNaN(value)) return;
 
-  setInterval(() => {
-    value = clamp(value + (Math.random() - 0.45) * 0.15, -2.5, 2.5);
-    value = Math.round(value * 100) / 100;
-    el.textContent = `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-    el.classList.toggle('text-up', value >= 0);
-    el.classList.toggle('text-down', value < 0);
-  }, 4000);
+  trackInterval(
+    setInterval(() => {
+      value = clamp(value + (Math.random() - 0.45) * 0.15, -2.5, 2.5);
+      value = Math.round(value * 100) / 100;
+      el.textContent = `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+      el.classList.toggle('text-up', value >= 0);
+      el.classList.toggle('text-down', value < 0);
+    }, 4000)
+  );
 }
 
 function startPipelineCycle(root) {
@@ -161,19 +193,21 @@ function startPipelineCycle(root) {
   let active = stages.findIndex((s) => s.dataset.active === 'true');
   if (active < 0) active = 0;
 
-  setInterval(() => {
-    const current = stages[active];
-    current.classList.remove('bg-surface', 'text-accent');
-    current.classList.add('text-muted');
-    delete current.dataset.active;
+  trackInterval(
+    setInterval(() => {
+      const current = stages[active];
+      current.classList.remove('bg-surface', 'text-accent');
+      current.classList.add('text-muted');
+      delete current.dataset.active;
 
-    active = (active + 1) % stages.length;
+      active = (active + 1) % stages.length;
 
-    const next = stages[active];
-    next.classList.add('bg-surface', 'text-accent');
-    next.classList.remove('text-muted');
-    next.dataset.active = 'true';
-  }, 1800);
+      const next = stages[active];
+      next.classList.add('bg-surface', 'text-accent');
+      next.classList.remove('text-muted');
+      next.dataset.active = 'true';
+    }, 1800)
+  );
 }
 
 function makeSpan(className, text) {
@@ -206,17 +240,19 @@ function startLogTicker(root) {
   if (!el) return;
   let index = LOG_START_INDEX;
 
-  setInterval(() => {
-    gsap.to(el, {
-      opacity: 0,
-      duration: 0.25,
-      onComplete: () => {
-        index = (index + 1) % LOG_LINES.length;
-        renderLogLine(el, LOG_LINES[index]);
-        gsap.to(el, { opacity: 1, duration: 0.25 });
-      },
-    });
-  }, 2200);
+  trackInterval(
+    setInterval(() => {
+      gsap.to(el, {
+        opacity: 0,
+        duration: 0.25,
+        onComplete: () => {
+          index = (index + 1) % LOG_LINES.length;
+          renderLogLine(el, LOG_LINES[index]);
+          gsap.to(el, { opacity: 1, duration: 0.25 });
+        },
+      });
+    }, 2200)
+  );
 }
 
 function startCockpitAnimations(root) {
@@ -228,49 +264,72 @@ function startCockpitAnimations(root) {
   startLogTicker(root);
 }
 
+function begin(root) {
+  if (root.dataset.cockpitInit === 'true') return;
+  root.dataset.cockpitInit = 'true';
+  // Every tween started inside (including the repeat:-1 dot pulses) is
+  // tracked by this context; ctx.revert() on teardown kills all of them in
+  // one call instead of leaking on every home<->away round-trip.
+  ctx = gsap.context(() => {
+    startCockpitAnimations(root);
+  });
+}
+
 function initCockpit() {
   const root = document.querySelector('[data-cockpit]');
-  if (!root || root.dataset.cockpitInit === 'true') return;
+  if (!root) return; // no-ops on every page without a cockpit block
 
   // prefers-reduced-motion: reduce -> no timers, no rAF, no GSAP. The
   // server-rendered markup is already the full static frame the spec asks
   // for (drawn line, fixed clock, AUDIT active, one log line, solid dot).
-  if (prefersReducedMotion) {
+  if (reducedMotion()) {
     root.dataset.cockpitInit = 'true';
     return;
   }
 
-  const begin = () => {
-    if (root.dataset.cockpitInit === 'true') return;
-    root.dataset.cockpitInit = 'true';
-    startCockpitAnimations(root);
-  };
-
   // The cockpit figure sits below the fold and is scroll-revealed by
   // motion.js's initScrollReveals (opacity 0 -> 1 around "top 85%"). Starting
-  // the equity draw-in at DOMContentLoaded would finish unseen; gate it on
-  // the cockpit actually entering the viewport instead, using a native
+  // the equity draw-in at page-load would finish unseen; gate it on the
+  // cockpit actually entering the viewport instead, using a native
   // IntersectionObserver so this file stays independent of motion.js/GSAP
-  // plugin registration.
+  // plugin registration. Re-armed fresh on every astro:page-load since
+  // `root` is itself a brand-new node each time.
   if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(
+    observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
-          begin();
-          io.disconnect();
+          begin(root);
+          observer?.disconnect();
+          observer = null;
         }
       },
       { rootMargin: '0px 0px -15% 0px', threshold: 0 }
     );
-    io.observe(root);
+    observer.observe(root);
   } else {
-    begin();
+    begin(root);
   }
 }
 
-function ready(fn) {
-  if (document.readyState !== 'loading') fn();
-  else document.addEventListener('DOMContentLoaded', fn);
+/**
+ * Runs right before the ClientRouter swaps in new content. Clears every
+ * interval this page started (clock, equity-extend, pnl nudge, pipeline
+ * cycle, log ticker), disconnects the IntersectionObserver if the cockpit
+ * was never scrolled into view, and reverts every gsap tween/timeline
+ * created inside begin()'s context -- including the infinite dot-pulse
+ * tweens, which would otherwise keep running on a detached node forever.
+ */
+function teardown() {
+  clearAllIntervals();
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
+  if (ctx) {
+    ctx.revert();
+    ctx = null;
+  }
 }
 
-ready(initCockpit);
+document.addEventListener('astro:page-load', initCockpit);
+document.addEventListener('astro:before-swap', teardown);

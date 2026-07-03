@@ -97,7 +97,10 @@ function slugFor(p: (typeof allProjects)[number]) {
                         {project.data.status}
                       </span>
                     </div>
-                    <h3 class="mb-3 font-display text-2xl text-fg transition-colors duration-300 group-hover:text-accent">
+                    <h3
+                      class="mb-3 font-display text-2xl text-fg transition-colors duration-300 group-hover:text-accent"
+                      transition:name={`project-title-${slug}`}
+                    >
                       {project.data.title}
                     </h3>
                     <p class="text-[0.95rem] text-muted">{project.data.tagline}</p>

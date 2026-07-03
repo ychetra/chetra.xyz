@@ -6,23 +6,37 @@ const links = [
 ];
 ---
 
-<header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/90 backdrop-blur">
+<header
+  class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/90 backdrop-blur"
+  transition:persist
+  transition:name="site-nav"
+>
   <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-10" aria-label="Primary">
     <a href="/" class="font-mono text-sm text-fg">
       chetra.xyz<span class="text-accent">.</span>
     </a>
 
-    <ul class="hidden items-center gap-8 font-mono text-xs uppercase tracking-[0.15em] md:flex">
-      {
-        links.map((link) => (
-          <li>
-            <a href={link.href} class="text-fg transition-colors hover:text-accent">
-              {link.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="hidden items-center gap-6 md:flex">
+      <ul class="flex items-center gap-8 font-mono text-xs uppercase tracking-[0.15em]">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} class="text-fg transition-colors hover:text-accent">
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <button
+        type="button"
+        data-palette-open
+        class="font-mono text-[11px] uppercase tracking-[0.1em] text-muted transition-colors hover:text-accent"
+        aria-label="Open command palette"
+      >
+        ⌘K
+      </button>
+    </div>
 
     <button
       id="nav-toggle"
