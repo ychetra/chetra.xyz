@@ -79,7 +79,7 @@ function slugFor(p: (typeof allProjects)[number]) {
                 project.data.metrics?.find((m) => m.tone === 'accent') ?? project.data.metrics?.[0];
               return (
                 <a
-                  href={`/work/${slug}`}
+                  href={`/work/${slug}/`}
                   class="project-card group flex flex-col justify-between bg-bg p-8 transition-colors duration-300 hover:bg-surface"
                   data-reveal-item
                 >

@@ -1,0 +1,165 @@
+---
+/**
+ * Homepage-only scrolling "factory tape" above the footer. Every item is a
+ * fact already published elsewhere on this same page (Factory.astro's
+ * funnel counts / survivor stats / status line, the cockpit's own log
+ * lines) -- no new metrics invented for the tape. Pure CSS marquee: no JS,
+ * so no astro:page-load/before-swap lifecycle needed at all -- there is
+ * nothing to leak. Rendered only from index.astro (not Base.astro, which is
+ * shared by every page), so it never appears on /work, /notes, etc.
+ */
+const items: { text: string; status: 'pass' | 'fail' | null }[] = [
+  { text: '3,911 parameter trials screened', status: null },
+  { text: '2,192 combos ranked by screen Sharpe', status: null },
+  { text: '20 candidates reached the DSR audit', status: null },
+  { text: '19 of 20 failed the deflated-Sharpe gate', status: 'fail' },
+  { text: 'ORB_SESSION · XAUUSD H1 — passed every gate', status: 'pass' },
+  { text: 'real-spread Sharpe 1.53 (screen was 2.50)', status: null },
+  { text: 'holdout Sharpe 3.75 — locked 2026-H1', status: 'pass' },
+  { text: 'max drawdown 11.1%, real-spread backtest', status: null },
+  { text: 'preparing HolaPrime 2-step challenge', status: null },
+  { text: 'paper first. always.', status: null },
+];
+---
+
+<div
+  class="overflow-hidden border-y border-line py-2 font-mono text-[11px] text-muted"
+  role="group"
+  aria-label="Factory process log, scrolling ticker of already-published facts from this page"
+>
+  <div class="tape-scroll">
+    <div class="tape-track">
+      {
+        items.map((item) => (
+          <>
+            <span class="tape-item">
+              {item.status === 'pass' && (
+                <span class="text-up" aria-hidden="true">
+                  ✓{' '}
+                </span>
+              )}
+              {item.status === 'fail' && (
+                <span class="text-down" aria-hidden="true">
+                  ✗{' '}
+                </span>
+              )}
+              {item.text}
+            </span>
+            <span class="tape-dot text-accent" aria-hidden="true">
+              ·
+            </span>
+          </>
+        ))
+      }
+    </div>
+    <div class="tape-track" aria-hidden="true">
+      {
+        items.map((item) => (
+          <>
+            <span class="tape-item">
+              {item.status === 'pass' && (
+                <span class="text-up" aria-hidden="true">
+                  ✓{' '}
+                </span>
+              )}
+              {item.status === 'fail' && (
+                <span class="text-down" aria-hidden="true">
+                  ✗{' '}
+                </span>
+              )}
+              {item.text}
+            </span>
+            <span class="tape-dot text-accent" aria-hidden="true">
+              ·
+            </span>
+          </>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="tape-static">
+    {
+      items.slice(0, 3).map((item) => (
+        <>
+          <span class="tape-item">
+            {item.status === 'pass' && (
+              <span class="text-up" aria-hidden="true">
+                ✓{' '}
+              </span>
+            )}
+            {item.status === 'fail' && (
+              <span class="text-down" aria-hidden="true">
+                ✗{' '}
+              </span>
+            )}
+            {item.text}
+          </span>
+          <span class="tape-dot text-accent" aria-hidden="true">
+            ·
+          </span>
+        </>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .tape-scroll {
+    display: flex;
+    overflow: hidden;
+  }
+
+  .tape-track {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.75rem;
+    padding-inline-end: 0.75rem;
+    white-space: nowrap;
+    animation: tape-scroll 40s linear infinite;
+    will-change: transform;
+  }
+
+  /* Pauses on hover -- applies to both tracks together so the loop resumes
+     in sync (not staggered) when the pointer leaves. */
+  .tape-scroll:hover .tape-track {
+    animation-play-state: paused;
+  }
+
+  .tape-item {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tape-static {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  @keyframes tape-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* 100% of the track's OWN width -- with two identical tracks placed
+         side by side by the flex row above, this is the classic seamless-
+         loop trick: both tracks animate together, and the instant track A
+         has slid fully off-screen left, track B is sitting exactly where A
+         started, so the infinite loop's snap-back is visually undetectable. */
+      transform: translateX(-100%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tape-scroll {
+      display: none;
+    }
+    .tape-static {
+      display: flex;
+    }
+  }
+</style>

@@ -5,6 +5,12 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://chetra.xyz',
+  // Cloudflare Pages serves this as a directory-output static site, which
+  // 308-redirects `/work` -> `/work/`. Forcing 'always' here makes the dev
+  // server enforce the exact same trailing-slash requirement, so a wrong
+  // internal href fails loudly locally instead of only surfacing as an
+  // extra redirect hop in production.
+  trailingSlash: 'always',
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'hover',

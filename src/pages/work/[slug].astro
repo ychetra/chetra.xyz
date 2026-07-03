@@ -51,7 +51,7 @@ function slugFor(p: typeof prev) {
     <div class="mx-auto max-w-3xl">
       <div data-scroll-progress aria-hidden="true"></div>
       <a
-        href="/work"
+        href="/work/"
         class="mb-10 inline-block font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
       >
         ← All work
@@ -140,7 +140,7 @@ function slugFor(p: typeof prev) {
         <div class="min-w-0">
           {prev && (
             <a
-              href={`/work/${slugFor(prev)}`}
+              href={`/work/${slugFor(prev)}/`}
               class="font-mono text-xs uppercase tracking-[0.15em] text-muted underline underline-offset-4 hover:text-accent"
             >
               ← {prev.data.title}
@@ -148,7 +148,7 @@ function slugFor(p: typeof prev) {
           )}
         </div>
         <a
-          href="/work"
+          href="/work/"
           class="shrink-0 font-mono text-xs uppercase tracking-[0.15em] text-accent underline underline-offset-4"
         >
           All work
@@ -156,7 +156,7 @@ function slugFor(p: typeof prev) {
         <div class="min-w-0 sm:text-right">
           {next && (
             <a
-              href={`/work/${slugFor(next)}`}
+              href={`/work/${slugFor(next)}/`}
               class="font-mono text-xs uppercase tracking-[0.15em] text-muted underline underline-offset-4 hover:text-accent"
             >
               {next.data.title} →

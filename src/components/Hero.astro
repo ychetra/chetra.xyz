@@ -35,7 +35,12 @@ const fillPath = `${linePath} L1000,300 L0,300 Z`;
 ---
 
 <section id="hero" aria-labelledby="hero-heading" class="relative min-h-[100svh] overflow-hidden border-b border-line">
-  <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 opacity-50 md:h-2/3 md:opacity-100" aria-hidden="true">
+  <div
+    class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 opacity-50 md:h-2/3 md:opacity-100"
+    data-hero-curve
+    data-curve-points={JSON.stringify(equityPoints)}
+    aria-hidden="true"
+  >
     <svg
       viewBox="0 0 1000 300"
       preserveAspectRatio="none"
@@ -61,8 +66,24 @@ const fillPath = `${linePath} L1000,300 L0,300 Z`;
         pathLength="1"
       />
     </svg>
+
+    <!-- Trading-terminal crosshair: pre-created hidden, positioned/shown by
+         motion.js's initHeroCrosshair (desktop pointer:fine only, rAF-
+         throttled). Absent entirely on touch/reduced-motion via the CSS
+         below, in addition to the JS-side pointer:fine guard. -->
+    <div data-crosshair-v aria-hidden="true"></div>
+    <div data-crosshair-h aria-hidden="true"></div>
+    <div data-crosshair-chip aria-hidden="true">
+      <span class="text-muted" style="text-transform:uppercase; letter-spacing:0.1em;">equity</span>
+      <span data-crosshair-value>0.0%</span>
+    </div>
   </div>
 
+  <!--
+    The crosshair listens on the hero <section> itself (motion.js) and maps
+    viewport coords onto the curve SVG's rect, so this content grid needs no
+    pointer-events tricks — text stays selectable, CTAs stay ordinary links.
+  -->
   <div
     class="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl grid-cols-1 items-end gap-10 px-6 pb-16 pt-32 md:grid-cols-12 md:gap-6 md:px-10 md:pb-24"
   >
@@ -103,3 +124,66 @@ const fillPath = `${linePath} L1000,300 L0,300 Z`;
     </div>
   </div>
 </section>
+
+<style>
+  /*
+    Pre-created hidden; motion.js's initHeroCrosshair only ever toggles
+    opacity/transform on these (never display), matching the "elements
+    pre-created hidden, transforms/opacity only" spec requirement.
+    display:none under coarse pointers / no-hover / reduced-motion is a
+    belt-and-suspenders match for the JS-side pointer:fine guard -- the
+    feature is fully absent on touch and under reduced motion, not just
+    inert.
+  */
+  [data-crosshair-v],
+  [data-crosshair-h],
+  [data-crosshair-chip] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  [data-crosshair-v] {
+    width: 1px;
+    height: 100%;
+    background: var(--color-accent);
+  }
+
+  [data-crosshair-h] {
+    width: 100%;
+    height: 1px;
+    background: var(--color-accent);
+  }
+
+  [data-crosshair-chip] {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+    border: 1px solid var(--color-line);
+    background: var(--color-elevated);
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-fg);
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    [data-crosshair-v],
+    [data-crosshair-h],
+    [data-crosshair-chip] {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-crosshair-v],
+    [data-crosshair-h],
+    [data-crosshair-chip] {
+      display: none;
+    }
+  }
+</style>

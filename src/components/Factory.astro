@@ -95,13 +95,13 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
     </p>
 
     <!-- Pipeline diagram -->
-    <div class="mt-20" data-reveal-group>
-      <ol class="flex flex-col md:flex-row md:items-start">
+    <div class="relative mt-20" data-reveal-group>
+      <ol class="flex flex-col md:flex-row md:items-start" data-pipeline-track>
         {
           stages.map((stage, i) => (
             <>
               <li class="flex-1" data-reveal-item>
-                <div class="border border-line px-4 py-4 text-center">
+                <div class="border border-line px-4 py-4 text-center" data-stage-box>
                   <span class="font-mono text-xs uppercase tracking-[0.15em] text-fg">{stage.name}</span>
                 </div>
                 <p class="mt-2 text-center font-mono text-[11px] text-muted">{stage.note}</p>
@@ -140,7 +140,24 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
           ))
         }
       </ol>
+
+      <!--
+        "Candidate journey" layer: factory-flow.js pool of <=3 candidate dots,
+        spawned/positioned here by JS (transforms/opacity only). inset-0 over
+        this wrapper exactly covers the <ol> above (its only sibling in
+        normal flow) whether the strip is laid out row (desktop) or column
+        (mobile) -- factory-flow.js reads live getBoundingClientRect() off
+        each [data-stage-box], so it needs no separate vertical/horizontal
+        branch, it just follows whatever layout is currently rendered.
+      -->
+      <div class="pointer-events-none absolute inset-0" data-candidate-layer aria-hidden="true"></div>
     </div>
+    <p
+      class="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-muted"
+      data-pipeline-caption
+    >
+      simulation — proportions from the real funnel
+    </p>
 
     <!-- Funnel -->
     <div class="mt-24" data-reveal-group>
@@ -378,3 +395,49 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
     </div>
   </div>
 </section>
+
+<style is:global>
+  /*
+    is:global, deliberately: Astro scopes normal <style> blocks by suffixing
+    every selector with a per-component data-astro-cid-* attribute applied
+    to elements present in THIS file's own template at render time.
+    Candidate dots are created later, client-side, by factory-flow.js
+    (document.createElement, no innerHTML) -- they never receive that
+    attribute, so a scoped rule would silently never match them. Same root
+    cause and same fix work/[slug].astro and notes/[slug].astro already use
+    for <Content />-rendered markdown.
+
+    Also deliberately NOT Tailwind utility classes: elements built entirely
+    at runtime in a .js file are invisible to Tailwind's build-time content
+    scan, so a plain `bg-accent`/`bg-down` class string assigned from JS
+    isn't guaranteed to survive the production CSS purge. A real,
+    hand-written rule here is JIT-proof and still tokens-only
+    (var(--color-*), no hardcoded hex). Class names are specific enough
+    (candidate-dot, plus compound .is-dead/.is-live) not to collide with
+    anything else site-wide.
+  */
+  .candidate-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    opacity: 0;
+    background: var(--color-accent);
+    will-change: transform, opacity;
+  }
+
+  .candidate-dot.is-dead {
+    background: var(--color-down);
+  }
+
+  .candidate-dot.is-live {
+    background: var(--color-up);
+  }
+
+  /* Reduced motion: static diagram only, no journey -- the "simulation"
+     caption describes an animation that isn't running, so it goes with it. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-pipeline-caption] {
+      display: none;
+    }
+  }
+</style>

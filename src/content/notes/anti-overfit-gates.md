@@ -41,4 +41,4 @@ A single survivor from 3,911 trials looks, at a glance, like a pipeline that mos
 
 ## What this isn't
 
-No live trading results exist yet. `ORB_SESSION` cleared real-spread validation, the DSR gate, and a locked holdout — that's a validated backtest, not a track record. I'm preparing a HolaPrime 2-step challenge under this strategy and the same risk ladder that governs everything else here. When there are live numbers, they'll replace the backtested ones on the [tearsheet](/tearsheet) and here — not before, and not quietly.
+No live trading results exist yet. `ORB_SESSION` cleared real-spread validation, the DSR gate, and a locked holdout — that's a validated backtest, not a track record. I'm preparing a HolaPrime 2-step challenge under this strategy and the same risk ladder that governs everything else here. When there are live numbers, they'll replace the backtested ones on the [tearsheet](/tearsheet/) and here — not before, and not quietly.

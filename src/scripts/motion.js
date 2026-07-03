@@ -158,6 +158,32 @@ function initNav() {
   });
 }
 
+/**
+ * Nav active state (persisted header only). Nav.astro's SSR output already
+ * gets aria-current/accent right on every hard load AND on the (non-
+ * persisted) #nav-overlay after every soft nav -- that markup is freshly
+ * re-rendered per page. The persisted <header>, by contrast, is the SAME
+ * DOM node across client-side navs (transition:persist skips re-render), so
+ * whatever active-state classes were last applied to it survive untouched
+ * and can go stale the moment you nav away. Re-derive from the live
+ * location.pathname and reapply here, every astro:page-load, so the
+ * persisted header stays honest. This is a correctness fix, not decoration
+ * -- called unconditionally, before the reducedMotion() early return.
+ */
+function syncNavActiveState() {
+  const path = window.location.pathname;
+  document.querySelectorAll('[data-nav-link]').forEach((link) => {
+    const href = link.getAttribute('href') || '';
+    const active = !href.startsWith('/#') && (path === href || path.startsWith(href));
+    link.classList.toggle('text-accent', active);
+    link.classList.toggle('decoration-accent', active);
+    link.classList.toggle('text-fg', !active);
+    link.classList.toggle('decoration-transparent', !active);
+    if (active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+}
+
 /** Hero content: simple on-load fade/slide, not scroll-triggered (already in view). */
 function initHeroEntrance() {
   const hero = document.getElementById('hero');
@@ -325,6 +351,119 @@ function initMagnetic() {
   });
 }
 
+/**
+ * Hero curve crosshair (Hero.astro, desktop pointer:fine only, rAF-
+ * throttled): a 1px vertical + horizontal hairline pair and a small mono
+ * readout chip track the cursor over the hero's decorative equity SVG. The
+ * horizontal hairline and the chip both snap to the CURVE's own y-value at
+ * the cursor's x (read off the same hand-authored point data the SVG path
+ * is built from) rather than the raw mouse y -- a real crosshair reading
+ * the series, not an arbitrary pointer position. The percentage is a pure
+ * linear map of that y onto the curve's own [min,max] y-range (0% at the
+ * curve's own lowest point, 100% at its own highest) -- self-referential,
+ * no invented headline metric, matching the spec's "illustrative, no fake
+ * precision" instruction. [data-hero-curve] only accepts pointer events at
+ * md: and up (see Hero.astro), so this never fires on touch layouts either.
+ * No teardown needed: the listeners live on an element inside the page's
+ * swapped-out <main> content, garbage-collected with it on nav -- same
+ * "nothing module-level to leak" reasoning as initFunnelTooltips below.
+ */
+function initHeroCrosshair() {
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+
+  const wrap = document.querySelector('[data-hero-curve]');
+  const svg = wrap?.querySelector('svg');
+  const vLine = wrap?.querySelector('[data-crosshair-v]');
+  const hLine = wrap?.querySelector('[data-crosshair-h]');
+  const chip = wrap?.querySelector('[data-crosshair-chip]');
+  const chipValue = wrap?.querySelector('[data-crosshair-value]');
+  if (!wrap || !svg || !vLine || !hLine || !chip || !chipValue) return;
+
+  let points;
+  try {
+    points = JSON.parse(wrap.dataset.curvePoints || '[]');
+  } catch {
+    points = [];
+  }
+  if (points.length < 2) return;
+
+  const ys = points.map((p) => p[1]);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const vbW = points[points.length - 1][0];
+  const vbH = 300;
+
+  function yAtX(x) {
+    let i = 0;
+    while (i < points.length - 2 && points[i + 1][0] < x) i++;
+    const [x0, y0] = points[i];
+    const [x1, y1] = points[i + 1];
+    const t = x1 === x0 ? 0 : (x - x0) / (x1 - x0);
+    return y0 + (y1 - y0) * t;
+  }
+
+  let rafId = null;
+  let pending = null;
+
+  function hide() {
+    vLine.style.opacity = '0';
+    hLine.style.opacity = '0';
+    chip.style.opacity = '0';
+  }
+
+  function update() {
+    rafId = null;
+    if (!pending) return;
+    const rect = svg.getBoundingClientRect();
+    const px = pending.x - rect.left;
+    const py = pending.y - rect.top;
+    if (px < 0 || px > rect.width || py < 0 || py > rect.height) {
+      hide();
+      return;
+    }
+
+    const curveX = (px / rect.width) * vbW;
+    const curveY = yAtX(Math.max(0, Math.min(vbW, curveX)));
+    const yPx = (curveY / vbH) * rect.height;
+    const pct = maxY === minY ? 0 : ((maxY - curveY) / (maxY - minY)) * 100;
+
+    vLine.style.transform = `translateX(${px}px)`;
+    hLine.style.transform = `translateY(${yPx}px)`;
+    chipValue.textContent = `${pct.toFixed(1)}%`;
+
+    const chipRect = chip.getBoundingClientRect();
+    let chipX = px + 12;
+    if (chipX + chipRect.width > rect.width) chipX = px - 12 - chipRect.width;
+    let chipY = yPx - chipRect.height - 10;
+    if (chipY < 0) chipY = yPx + 10;
+    chip.style.transform = `translate(${chipX}px, ${chipY}px)`;
+
+    vLine.style.opacity = '0.6';
+    hLine.style.opacity = '0.6';
+    chip.style.opacity = '1';
+  }
+
+  // Listen on the whole hero section, not the curve layer: update() maps
+  // viewport coords onto the SVG rect and hides itself outside it, so the
+  // text overlay above the curve stays fully selectable (no pointer-events
+  // pass-through hacks needed).
+  const heroSection = document.getElementById('hero') || wrap;
+
+  heroSection.addEventListener('mousemove', (event) => {
+    pending = { x: event.clientX, y: event.clientY };
+    if (!rafId) rafId = requestAnimationFrame(update);
+  });
+
+  heroSection.addEventListener('mouseleave', () => {
+    pending = null;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    hide();
+  });
+}
+
 /** Status dot: subtle opacity pulse (transform/opacity only). repeat:-1 -> context-scoped. */
 function initStatusDotPulse() {
   const dot = document.querySelector('[data-status-dot]');
@@ -411,6 +550,7 @@ function initFunnelTooltips() {
 function initPageContent() {
   initNav();
   initFunnelTooltips();
+  syncNavActiveState();
 
   if (reducedMotion()) return;
 
@@ -422,6 +562,7 @@ function initPageContent() {
     initPipelineConnectors();
     initFunnelBars();
     initMagnetic();
+    initHeroCrosshair();
     initStatusDotPulse();
   });
 

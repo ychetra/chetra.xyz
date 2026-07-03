@@ -12,7 +12,7 @@ isPrivate: true
 draft: false
 ---
 
-A real-time dashboard that watches the [Strategy Factory](/work/strategy-factory)
+A real-time dashboard that watches the [Strategy Factory](/work/strategy-factory/)
 pipeline — equity, open risk, and pipeline stage — backed by MongoDB. It's
 the operational front-end for the factory, not a case study in itself: no
 architecture write-up here, existence and stack only.

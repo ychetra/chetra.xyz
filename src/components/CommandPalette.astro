@@ -25,11 +25,11 @@ type Command = {
 // Projects.astro / notes/index.astro.
 const commands: Command[] = [
   { label: 'Home', href: '/', kind: 'nav' },
-  { label: 'Work', href: '/work', kind: 'nav' },
-  ...featured.map((p) => ({ label: `work/${slugFor(p)}`, href: `/work/${slugFor(p)}`, kind: 'nav' as const })),
-  { label: 'Notes', href: '/notes', kind: 'nav' },
-  ...allNotes.map((n) => ({ label: `notes/${n.id}`, href: `/notes/${n.id}`, kind: 'nav' as const })),
-  { label: 'Tearsheet', href: '/tearsheet', kind: 'nav' },
+  { label: 'Work', href: '/work/', kind: 'nav' },
+  ...featured.map((p) => ({ label: `work/${slugFor(p)}`, href: `/work/${slugFor(p)}/`, kind: 'nav' as const })),
+  { label: 'Notes', href: '/notes/', kind: 'nav' },
+  ...allNotes.map((n) => ({ label: `notes/${n.id}`, href: `/notes/${n.id}/`, kind: 'nav' as const })),
+  { label: 'Tearsheet', href: '/tearsheet/', kind: 'nav' },
   { label: 'Download tearsheet PDF', href: '/tearsheet.pdf', kind: 'download' },
   { label: 'Contact', href: '/#contact', kind: 'nav' },
   { label: 'GitHub', href: 'https://github.com/ychetra', kind: 'external' },

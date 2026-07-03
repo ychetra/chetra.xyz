@@ -1,9 +1,21 @@
 ---
 const links = [
-  { label: 'Work', href: '/work' },
-  { label: 'Notes', href: '/notes' },
+  { label: 'Work', href: '/work/' },
+  { label: 'Notes', href: '/notes/' },
   { label: 'Contact', href: '/#contact' },
 ];
+
+// Current section from the request path: /work* -> Work, /notes* -> Notes.
+// Contact is an in-page anchor, never "active". This gets the FIRST paint
+// (hard load, and the non-persisted #nav-overlay on every soft nav) right;
+// the persisted <header> additionally needs motion.js's astro:page-load
+// sync because its DOM node survives client-side navs untouched -- see
+// syncNavActiveState() there.
+const pathname = Astro.url.pathname;
+function isActiveLink(href: string) {
+  if (href.startsWith('/#')) return false;
+  return pathname === href || pathname.startsWith(href);
+}
 ---
 
 <header
@@ -21,7 +33,15 @@ const links = [
         {
           links.map((link) => (
             <li>
-              <a href={link.href} class="text-fg transition-colors hover:text-accent">
+              <a
+                href={link.href}
+                data-nav-link
+                aria-current={isActiveLink(link.href) ? 'page' : undefined}
+                class:list={[
+                  'underline underline-offset-4 transition-colors hover:text-accent hover:decoration-accent',
+                  isActiveLink(link.href) ? 'text-accent decoration-accent' : 'text-fg decoration-transparent',
+                ]}
+              >
                 {link.label}
               </a>
             </li>
@@ -66,7 +86,15 @@ const links = [
     {
       links.map((link) => (
         <li>
-          <a href={link.href} class="nav-overlay-link text-fg transition-colors hover:text-accent">
+          <a
+            href={link.href}
+            data-nav-link
+            aria-current={isActiveLink(link.href) ? 'page' : undefined}
+            class:list={[
+              'nav-overlay-link underline underline-offset-4 transition-colors hover:text-accent hover:decoration-accent',
+              isActiveLink(link.href) ? 'text-accent decoration-accent' : 'text-fg decoration-transparent',
+            ]}
+          >
             {link.label}
           </a>
         </li>

@@ -51,4 +51,4 @@ until they do.
 This is a private repository — no source, no internals beyond what's above.
 The full case study (pipeline diagram, funnel, cockpit) lives on the
 [homepage](/#factory), and the validated numbers are published in full on
-the [tearsheet](/tearsheet).
+the [tearsheet](/tearsheet/).

@@ -45,7 +45,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
           <ul class="border-y border-line" data-reveal-group>
             {posts.map((post) => (
               <li class="border-b border-line py-8 last:border-b-0" data-reveal-item>
-                <a href={`/notes/${post.id}`} class="group block">
+                <a href={`/notes/${post.id}/`} class="group block">
                   <p class="mb-3 font-mono text-xs uppercase tracking-[0.1em] text-muted">
                     <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
                   </p>

@@ -21,7 +21,7 @@ const featured = allProjects
           const slug = project.data.slug ?? project.id;
           return (
             <a
-              href={`/work/${slug}`}
+              href={`/work/${slug}/`}
               class="project-card group flex flex-col justify-between bg-bg p-8 transition-colors duration-300 hover:bg-surface"
               data-reveal-item
             >
@@ -48,7 +48,7 @@ const featured = allProjects
 
     <p class="mt-10 text-right">
       <a
-        href="/work"
+        href="/work/"
         class="font-mono text-xs uppercase tracking-[0.15em] text-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
       >
         View all {totalCount} projects → /work
