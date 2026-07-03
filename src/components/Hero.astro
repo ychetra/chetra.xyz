@@ -49,8 +49,8 @@ const fillPath = `${linePath} L1000,300 L0,300 Z`;
     >
       <defs>
         <linearGradient id="equity-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#F0B429" stop-opacity="0.04" />
-          <stop offset="100%" stop-color="#F0B429" stop-opacity="0" />
+          <stop offset="0%" style="stop-color: var(--color-accent)" stop-opacity="0.04" />
+          <stop offset="100%" style="stop-color: var(--color-accent)" stop-opacity="0" />
         </linearGradient>
       </defs>
       <path d={fillPath} fill="url(#equity-fade)" />
@@ -58,7 +58,7 @@ const fillPath = `${linePath} L1000,300 L0,300 Z`;
         data-equity-line
         d={linePath}
         fill="none"
-        stroke="#F0B429"
+        style="stroke: var(--color-accent)"
         stroke-opacity="0.35"
         stroke-width="2"
         stroke-linejoin="round"

@@ -23,6 +23,63 @@ html {
   color: var(--color-fg);
   font-family: var(--font-body);
   scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+/*
+  Light theme -- "amber terminal printed on paper", not a generic white
+  theme. Dark (the @theme block above) stays the default/brand; this only
+  applies once JS sets html[data-theme="light"] (explicit user choice via the
+  nav toggle or command palette, persisted to localStorage -- see
+  src/scripts/theme.js). No prefers-color-scheme auto-switch: the brand
+  default is dark regardless of OS setting.
+
+  --color-accent is intentionally darker than the spec's first-pass
+  #8A6510: that value cleared 4.5:1 against --color-bg (4.64:1) but fell
+  short against --color-surface (4.20:1) and --color-elevated (3.79:1),
+  where text-accent actually renders at body-text sizes (command palette
+  prompt char, 404 terminal block "factory" span -- both < 14px mono, not
+  "large text" by the 3:1 exception). #7A5A0C clears all three surfaces
+  (5.56 / 5.04 / 4.54) and the bg-accent/text-bg button pairing (5.56:1),
+  so no button-text ink flip is needed either.
+*/
+html[data-theme='light'] {
+  --color-bg: #F4EFE6;
+  --color-surface: #EBE4D6;
+  --color-elevated: #E2D9C6;
+  --color-line: #CFC4AC;
+  --color-fg: #211D14;
+  --color-muted: #6E6353;
+  --color-accent: #7A5A0C;
+  --color-accent-dim: #B08A2E;
+  --color-up: #177A4E;
+  --color-down: #B92C31;
+  color-scheme: light;
+}
+
+/*
+  Scope guard for "screens within the page" that must stay dark regardless
+  of the active theme (cockpit terminal in Factory.astro -- see THEME-SPEC.md
+  §2). Re-declares the same dark values as the @theme default so descendants
+  resolve dark via normal CSS custom-property inheritance from this node,
+  not a specificity fight with html[data-theme='light'] (that rule targets
+  <html>, an ancestor -- inheritance, not cascade, decides the winner for
+  everything under [data-theme-lock="dark"]). color-scheme is re-locked too
+  so native chrome inside it (e.g. the pipeline strip's overflow-x scrollbar)
+  stays dark instead of following the light page.
+*/
+[data-theme-lock='dark'] {
+  --color-bg: #0B0A08;
+  --color-surface: #141210;
+  --color-elevated: #1C1916;
+  --color-line: #2A251F;
+  --color-fg: #EDE6DA;
+  --color-muted: #8F8577;
+  --color-accent: #F0B429;
+  --color-accent-dim: #9C7418;
+  --color-up: #3FCF8E;
+  --color-down: #E5484D;
+  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -41,6 +98,27 @@ html {
 ::selection {
   background: var(--color-accent);
   color: var(--color-bg);
+}
+
+/*
+  Theme toggle icon swap (button markup lives twice in Nav.astro: persisted
+  desktop header + non-persisted mobile #nav-overlay -- see THEME-SPEC.md
+  §3). Driven purely by the html[data-theme] attribute the no-FOUC script
+  and theme.js both write, so the correct icon is already showing on first
+  paint with zero JS icon-swap logic and zero flash on the overlay's fresh
+  DOM node after every soft nav. JS (theme.js) only needs to keep
+  aria-label/aria-pressed in sync, which CSS can't do.
+*/
+[data-theme-toggle] [data-icon-moon] {
+  display: none;
+}
+
+html[data-theme='light'] [data-theme-toggle] [data-icon-sun] {
+  display: none;
+}
+
+html[data-theme='light'] [data-theme-toggle] [data-icon-moon] {
+  display: block;
 }
 
 /*

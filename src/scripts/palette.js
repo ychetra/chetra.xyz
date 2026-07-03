@@ -1,4 +1,5 @@
 import { navigate } from 'astro:transitions/client';
+import { toggleTheme } from './theme.js';
 
 /**
  * ⌘K command palette. Vanilla JS, no deps.
@@ -150,6 +151,11 @@ function activate(i) {
     window.open(cmd.href, '_blank', 'noopener,noreferrer');
   } else if (cmd.kind === 'mailto' || cmd.kind === 'download') {
     window.location.href = cmd.href;
+  } else if (cmd.kind === 'theme') {
+    // Not a navigation -- cmd.href is inert ('#'). Calls the same toggle
+    // the nav button uses (src/scripts/theme.js), so state/persistence/
+    // aria-sync all go through one code path.
+    toggleTheme();
   } else {
     // Soft, transition-aware navigation -- close first, then navigate, so
     // the palette isn't part of the outgoing view-transition snapshot.

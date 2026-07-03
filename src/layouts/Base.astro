@@ -37,6 +37,30 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://chetra.xyz');
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <ClientRouter />
     <meta name="theme-color" content="#0B0A08" />
+    <!--
+      No-FOUC theme script: is:inline (not bundled/deferred) so it runs
+      synchronously during head parsing, before first paint. Must come
+      AFTER the theme-color meta above (so it exists in the DOM for this
+      script to read/update) but before anything that depends on the final
+      CSS-var state actually rendering. Dark is the default/brand -- only an
+      explicit prior user choice (localStorage) switches to light; no
+      prefers-color-scheme auto-switch (THEME-SPEC.md §4). Mirrors
+      src/scripts/theme.js's applyTheme() meta-color logic in miniature
+      since that module hasn't loaded yet at this point in the parse.
+    -->
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.dataset.theme = 'light';
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#F4EFE6');
+          }
+        } catch (e) {
+          /* storage unavailable (private mode / disabled) -- dark default stands */
+        }
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
@@ -66,6 +90,7 @@ const ogImageURL = new URL(ogImage, Astro.site ?? 'https://chetra.xyz');
     <script>
       import '../scripts/motion.js';
       import '../scripts/cockpit.js';
+      import '../scripts/theme.js';
       import '../scripts/palette.js';
       import '../scripts/factory-flow.js';
     </script>

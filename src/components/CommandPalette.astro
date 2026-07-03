@@ -17,7 +17,7 @@ function slugFor(p: (typeof allProjects)[number]) {
 type Command = {
   label: string;
   href: string;
-  kind: 'nav' | 'external' | 'mailto' | 'download';
+  kind: 'nav' | 'external' | 'mailto' | 'download' | 'theme';
 };
 
 // Static command list, baked at build time from already-published content
@@ -34,6 +34,9 @@ const commands: Command[] = [
   { label: 'Contact', href: '/#contact', kind: 'nav' },
   { label: 'GitHub', href: 'https://github.com/ychetra', kind: 'external' },
   { label: 'Email', href: 'mailto:hi@chetra.xyz', kind: 'mailto' },
+  // href is inert ('#') -- activate() short-circuits on kind === 'theme'
+  // before it's ever used for navigation. See src/scripts/theme.js.
+  { label: 'theme: toggle light/dark', href: '#', kind: 'theme' },
 ];
 ---
 

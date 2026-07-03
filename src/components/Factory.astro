@@ -109,27 +109,27 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
               {i < stages.length - 1 && (
                 <li class="flex shrink-0 items-center justify-center py-2 md:px-1 md:py-0" aria-hidden="true">
                   <svg class="hidden h-2 w-10 md:block" viewBox="0 0 100 10" preserveAspectRatio="none">
-                    <line x1="0" y1="5" x2="100" y2="5" stroke="#2A251F" stroke-width="2" />
+                    <line x1="0" y1="5" x2="100" y2="5" style="stroke: var(--color-line)" stroke-width="2" />
                     <line
                       data-connector-dash
                       x1="0"
                       y1="5"
                       x2="100"
                       y2="5"
-                      stroke="#F0B429"
+                      style="stroke: var(--color-accent)"
                       stroke-width="2"
                       stroke-dasharray="6 10"
                     />
                   </svg>
                   <svg class="block h-8 w-2 md:hidden" viewBox="0 0 10 100" preserveAspectRatio="none">
-                    <line x1="5" y1="0" x2="5" y2="100" stroke="#2A251F" stroke-width="2" />
+                    <line x1="5" y1="0" x2="5" y2="100" style="stroke: var(--color-line)" stroke-width="2" />
                     <line
                       data-connector-dash
                       x1="5"
                       y1="0"
                       x2="5"
                       y2="100"
-                      stroke="#F0B429"
+                      style="stroke: var(--color-accent)"
                       stroke-width="2"
                       stroke-dasharray="6 10"
                     />
@@ -249,7 +249,11 @@ const pipelineStages = ['RESEARCH', 'SCREEN', 'VALIDATE', 'AUDIT', 'COMPARE', 'L
         at phone widths can give without clipping — so mobile relaxes to
         aspect-auto (content-driven height) and locks to 16:9 from sm: up.
       -->
-      <figure class="flex aspect-auto flex-col border border-line bg-elevated sm:aspect-video" data-reveal-item>
+      <figure
+        class="flex aspect-auto flex-col border border-line bg-elevated sm:aspect-video"
+        data-reveal-item
+        data-theme-lock="dark"
+      >
         <div
           class="flex flex-col font-mono text-fg sm:min-h-0 sm:flex-1"
           data-cockpit
