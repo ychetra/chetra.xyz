@@ -1,0 +1,210 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const title = 'Work — Chetra';
+const description = 'Selected projects — trading systems, autonomous agents, and the infrastructure around them.';
+
+const CATEGORY_ORDER = ['trading', 'ai-systems', 'iot', 'web', 'other'] as const;
+const CATEGORY_LABELS: Record<string, string> = {
+  trading: 'Trading',
+  'ai-systems': 'AI Systems',
+  iot: 'IoT',
+  web: 'Web',
+  other: 'Other',
+};
+const STATUS_TONE: Record<string, string> = {
+  shipped: 'text-up',
+  active: 'text-accent',
+  wip: 'text-muted',
+  archived: 'text-muted',
+  private: 'text-muted',
+};
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const totalCount = allProjects.length;
+
+const featured = allProjects
+  .filter((p) => p.data.tier === 'featured')
+  .sort((a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year));
+
+const archive = allProjects.filter((p) => p.data.tier === 'archive');
+const archiveByCategory = CATEGORY_ORDER.map((category) => ({
+  category,
+  label: CATEGORY_LABELS[category],
+  items: archive
+    .filter((p) => p.data.category === category)
+    .sort((a, b) => b.data.year.localeCompare(a.data.year) || a.data.order - b.data.order),
+})).filter((group) => group.items.length > 0);
+
+function slugFor(p: (typeof allProjects)[number]) {
+  return p.data.slug ?? p.id;
+}
+---
+
+<Base title={title} description={description}>
+  <section aria-labelledby="work-heading" class="px-6 pb-16 pt-32 md:px-10 md:pb-20 md:pt-40">
+    <div class="mx-auto max-w-6xl">
+      <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+        <span class="text-accent">// </span>SELECTED WORK
+      </p>
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <h1
+          id="work-heading"
+          class="font-display font-black leading-[0.95] text-fg"
+          style="font-size:clamp(3rem,7vw,5.5rem)"
+        >
+          Work
+        </h1>
+        <p class="font-mono text-xs uppercase tracking-[0.15em] text-muted">{totalCount} projects</p>
+      </div>
+      <p class="mt-6 max-w-xl text-lg text-muted">
+        Everything I'll stand behind in public — shipped systems, work in progress, and the smaller experiments
+        filed under archive.
+      </p>
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section aria-labelledby="featured-heading" class="px-6 pb-24 md:px-10 md:pb-32">
+        <div class="mx-auto max-w-6xl">
+          <h2 id="featured-heading" class="mb-10 font-mono text-xs uppercase tracking-[0.15em] text-muted">
+            Featured
+          </h2>
+          <div class="grid grid-cols-1 gap-px bg-line sm:grid-cols-2" data-reveal-group>
+            {featured.map((project, i) => {
+              const slug = slugFor(project);
+              const topMetric =
+                project.data.metrics?.find((m) => m.tone === 'accent') ?? project.data.metrics?.[0];
+              return (
+                <a
+                  href={`/work/${slug}`}
+                  class="project-card group flex flex-col justify-between bg-bg p-8 transition-colors duration-300 hover:bg-surface"
+                  data-reveal-item
+                >
+                  <div>
+                    <div class="mb-6 flex items-center justify-between gap-3">
+                      <span class="font-mono text-sm text-accent transition-transform duration-300 group-hover:translate-x-1">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span
+                        class:list={[
+                          'border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em]',
+                          STATUS_TONE[project.data.status],
+                        ]}
+                      >
+                        {project.data.status}
+                      </span>
+                    </div>
+                    <h3 class="mb-3 font-display text-2xl text-fg transition-colors duration-300 group-hover:text-accent">
+                      {project.data.title}
+                    </h3>
+                    <p class="text-[0.95rem] text-muted">{project.data.tagline}</p>
+                    {topMetric && (
+                      <p class="mt-4 font-mono text-xs text-muted">
+                        {topMetric.label}:{' '}
+                        <span
+                          class:list={[
+                            'text-fg',
+                            topMetric.tone === 'up' && 'text-up',
+                            topMetric.tone === 'down' && 'text-down',
+                            topMetric.tone === 'accent' && 'text-accent',
+                          ]}
+                        >
+                          {topMetric.value}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">
+                    {project.data.stack.join(' · ')}
+                  </p>
+                </a>
+              );
+            })}
+            {featured.length % 2 === 1 && (
+              <a
+                href="https://github.com/ychetra"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex flex-col justify-end bg-bg p-8 transition-colors duration-300 hover:bg-surface"
+                data-reveal-item
+              >
+                <span class="font-mono text-[11px] uppercase tracking-[0.15em] text-muted transition-colors duration-300 group-hover:text-accent">
+                  More on GitHub ↗<span class="sr-only"> (opens in new tab)</span>
+                </span>
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    archiveByCategory.length > 0 && (
+      <section aria-labelledby="archive-heading" class="border-t border-line px-6 py-24 md:px-10 md:py-32">
+        <div class="mx-auto max-w-6xl">
+          <h2 id="archive-heading" class="mb-10 font-mono text-xs uppercase tracking-[0.15em] text-muted">
+            Archive
+          </h2>
+          <div class="space-y-12" data-reveal-group>
+            {archiveByCategory.map((group) => (
+              <div data-reveal-item>
+                <h3 class="mb-4 font-mono text-xs uppercase tracking-[0.15em] text-accent">{group.label}</h3>
+                <ul class="border-y border-line">
+                  {group.items.map((project) => (
+                    <li class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-b border-line py-3 last:border-b-0">
+                      <span class="min-w-0 flex-1 font-display text-base text-fg [overflow-wrap:anywhere]">
+                        {project.data.title}
+                      </span>
+                      <span class="shrink-0 font-mono text-xs text-muted">{project.data.year}</span>
+                      <span class="hidden shrink-0 font-mono text-[11px] uppercase tracking-[0.1em] text-muted sm:block">
+                        {project.data.stack.join(' · ')}
+                      </span>
+                      {project.data.isPrivate ? (
+                        <span class="inline-flex shrink-0 items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-muted">
+                          <svg
+                            class="h-3 w-3"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            aria-hidden="true"
+                          >
+                            <rect x="4" y="11" width="16" height="9" />
+                            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                          </svg>
+                          Private
+                        </span>
+                      ) : project.data.repo ? (
+                        <a
+                          href={project.data.repo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="shrink-0 font-mono text-[11px] uppercase tracking-[0.1em] text-accent underline underline-offset-4"
+                        >
+                          Repo ↗<span class="sr-only"> (opens in new tab)</span>
+                        </a>
+                      ) : project.data.demo ? (
+                        <a
+                          href={project.data.demo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="shrink-0 font-mono text-[11px] uppercase tracking-[0.1em] text-accent underline underline-offset-4"
+                        >
+                          Live ↗<span class="sr-only"> (opens in new tab)</span>
+                        </a>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</Base>

@@ -1,0 +1,277 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects', ({ data }) => data.tier === 'featured' && !data.draft);
+  const sorted = [...projects].sort(
+    (a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year)
+  );
+
+  return sorted.map((project, index) => ({
+    params: { slug: project.data.slug ?? project.id },
+    props: {
+      project,
+      prev: sorted[index - 1] ?? null,
+      next: sorted[index + 1] ?? null,
+    },
+  }));
+}
+
+const { project, prev, next } = Astro.props;
+const { data } = project;
+const { Content } = await render(project);
+
+const title = `${data.title} — Chetra`;
+const description = data.tagline;
+
+const CATEGORY_LABELS: Record<string, string> = {
+  trading: 'Trading',
+  'ai-systems': 'AI Systems',
+  iot: 'IoT',
+  web: 'Web',
+  other: 'Other',
+};
+const STATUS_TONE: Record<string, string> = {
+  shipped: 'text-up',
+  active: 'text-accent',
+  wip: 'text-muted',
+  archived: 'text-muted',
+  private: 'text-muted',
+};
+
+function slugFor(p: typeof prev) {
+  return p ? (p.data.slug ?? p.id) : '';
+}
+---
+
+<Base title={title} description={description}>
+  <article class="px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-40">
+    <div class="mx-auto max-w-3xl">
+      <a
+        href="/work"
+        class="mb-10 inline-block font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
+      >
+        ← All work
+      </a>
+
+      <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted">
+        <span class="text-accent">// </span>{CATEGORY_LABELS[data.category]} · {data.year}
+      </p>
+      <h1
+        class="font-display font-black leading-[0.98] text-fg"
+        style="font-size:clamp(2.5rem,6vw,4.5rem)"
+      >
+        {data.title}
+      </h1>
+      <p class="mt-6 text-lg text-muted">{data.tagline}</p>
+
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-line py-4 font-mono text-xs uppercase tracking-[0.1em] text-muted">
+        {data.role && <span>{data.role}</span>}
+        <span class:list={['border border-line px-2 py-0.5', STATUS_TONE[data.status]]}>{data.status}</span>
+        <span class="flex flex-wrap gap-x-3 gap-y-1">{data.stack.join(' · ')}</span>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-[0.1em]">
+        {
+          data.repo && !data.isPrivate && (
+            <a href={data.repo} target="_blank" rel="noopener noreferrer" class="text-accent underline underline-offset-4">
+              Repo ↗<span class="sr-only"> (opens in new tab)</span>
+            </a>
+          )
+        }
+        {
+          data.demo && (
+            <a href={data.demo} target="_blank" rel="noopener noreferrer" class="text-accent underline underline-offset-4">
+              Live ↗<span class="sr-only"> (opens in new tab)</span>
+            </a>
+          )
+        }
+        {
+          data.isPrivate && (
+            <span class="inline-flex items-center gap-1.5 text-muted">
+              <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="4" y="11" width="16" height="9" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              Private repository
+            </span>
+          )
+        }
+      </div>
+
+      {
+        data.metrics && data.metrics.length > 0 && (
+          <div class="mt-16 grid grid-cols-2 gap-px bg-line md:grid-cols-4" data-reveal-group>
+            {data.metrics.map((metric) => (
+              <div class="bg-surface p-6" data-reveal-item>
+                <p class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">{metric.label}</p>
+                <p
+                  class:list={[
+                    'font-display text-[2rem] leading-none',
+                    metric.tone === 'up' && 'text-up',
+                    metric.tone === 'down' && 'text-down',
+                    metric.tone === 'accent' && 'text-accent',
+                    metric.tone === 'neutral' && 'text-fg',
+                  ]}
+                >
+                  {metric.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="project-prose mt-16 max-w-[68ch]">
+        <Content />
+      </div>
+
+      <nav
+        class="mt-24 flex flex-col gap-6 border-t border-line pt-10 sm:flex-row sm:items-center sm:justify-between"
+        aria-label="Project navigation"
+      >
+        <div class="min-w-0">
+          {prev && (
+            <a
+              href={`/work/${slugFor(prev)}`}
+              class="font-mono text-xs uppercase tracking-[0.15em] text-muted underline underline-offset-4 hover:text-accent"
+            >
+              ← {prev.data.title}
+            </a>
+          )}
+        </div>
+        <a
+          href="/work"
+          class="shrink-0 font-mono text-xs uppercase tracking-[0.15em] text-accent underline underline-offset-4"
+        >
+          All work
+        </a>
+        <div class="min-w-0 sm:text-right">
+          {next && (
+            <a
+              href={`/work/${slugFor(next)}`}
+              class="font-mono text-xs uppercase tracking-[0.15em] text-muted underline underline-offset-4 hover:text-accent"
+            >
+              {next.data.title} →
+            </a>
+          )}
+        </div>
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<style is:global>
+  /*
+    No @tailwindcss/typography plugin in this project (spec: no new deps),
+    so markdown body elements from <Content /> are styled by hand here,
+    scoped by the .project-prose wrapper class rather than Astro's
+    component-scoped attributes — <Content /> renders as a child component,
+    so scoped styles on this file would not reach its output. Same pattern
+    tearsheet.astro already uses for content it can't attach scoped
+    attributes to.
+  */
+  .project-prose h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-fg);
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .project-prose h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-fg);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-prose p {
+    color: var(--color-muted);
+    line-height: 1.75;
+    margin-bottom: 1.25rem;
+  }
+
+  .project-prose a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .project-prose strong {
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+
+  .project-prose ul,
+  .project-prose ol {
+    color: var(--color-muted);
+    margin: 0 0 1.25rem 1.25rem;
+  }
+
+  .project-prose ul {
+    list-style: disc;
+  }
+
+  .project-prose ol {
+    list-style: decimal;
+  }
+
+  .project-prose li {
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+  }
+
+  .project-prose li::marker {
+    color: var(--color-accent);
+  }
+
+  .project-prose blockquote {
+    border-left: 2px solid var(--color-accent);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: var(--color-fg);
+  }
+
+  .project-prose code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    padding: 0.15em 0.4em;
+    color: var(--color-fg);
+  }
+
+  .project-prose pre {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    padding: 1rem;
+    overflow-x: auto;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-prose pre code {
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  .project-prose hr {
+    border: none;
+    border-top: 1px solid var(--color-line);
+    margin: 2.5rem 0;
+  }
+</style>

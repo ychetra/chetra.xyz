@@ -1,42 +1,13 @@
 ---
-type Project = {
-  index: string;
-  title: string;
-  body: string;
-  tag: string;
-  href?: string;
-  external?: boolean;
-};
+import { getCollection } from 'astro:content';
 
-const projects: Project[] = [
-  {
-    index: '01',
-    title: 'Strategy Factory',
-    body: 'Autonomous research-to-rejection pipeline. MT5 in Docker, vectorbt screening, DSR audit, locked holdouts, three judging profiles.',
-    tag: 'PYTHON · DOCKER · VECTORBT',
-    href: '#factory',
-  },
-  {
-    index: '02',
-    title: 'Trading Cockpit',
-    body: 'Real-time command view of the factory: equity, open risk, stage-by-stage pipeline state. MongoDB Atlas backend, animated pipeline UI.',
-    tag: 'FASTAPI · MONGODB · ECHARTS',
-  },
-  {
-    index: '03',
-    title: 'Claude-brain',
-    body: 'A self-evolving memory system for AI-assisted work: knowledge graphs, an Obsidian vault, and multi-agent orchestration with cost-tiered model routing.',
-    tag: 'MCP · KNOWLEDGE GRAPHS',
-    href: 'https://github.com/ychetra/claude-brain',
-    external: true,
-  },
-  {
-    index: '04',
-    title: 'The Risk Ladder',
-    body: 'Prop-firm discipline as code: 1% → 0.5% step-down sizing, two-loss daily stop, hard kill-switch. Encoded once, enforced always.',
-    tag: 'RISK · MQL5 · PYTHON',
-  },
-];
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const totalCount = allProjects.length;
+
+const featured = allProjects
+  .filter((p) => p.data.tier === 'featured')
+  .sort((a, b) => a.data.order - b.data.order || b.data.year.localeCompare(a.data.year))
+  .slice(0, 4);
 ---
 
 <section id="projects" aria-labelledby="projects-heading" class="py-24 md:py-32">
@@ -46,35 +17,39 @@ const projects: Project[] = [
 
     <div class="grid grid-cols-1 gap-px bg-line sm:grid-cols-2" data-reveal-group>
       {
-        projects.map((project) => {
-          const Tag = project.href ? 'a' : 'article';
-          const linkProps = project.href
-            ? {
-                href: project.href,
-                ...(project.external ? { target: '_blank', rel: 'noopener noreferrer' } : {}),
-              }
-            : {};
+        featured.map((project, i) => {
+          const slug = project.data.slug ?? project.id;
           return (
-            <Tag
+            <a
+              href={`/work/${slug}`}
               class="project-card group flex flex-col justify-between bg-bg p-8 transition-colors duration-300 hover:bg-surface"
               data-reveal-item
-              {...linkProps}
             >
               <div>
                 <span class="mb-6 block font-mono text-sm text-accent transition-transform duration-300 group-hover:translate-x-1">
-                  {project.index}
+                  {String(i + 1).padStart(2, '0')}
                 </span>
                 <h3 class="mb-3 font-display text-2xl text-fg transition-colors duration-300 group-hover:text-accent">
-                  {project.title}
-                  {project.external && <span class="sr-only"> (opens in new tab)</span>}
+                  {project.data.title}
                 </h3>
-                <p class="text-[0.95rem] text-muted">{project.body}</p>
+                <p class="text-[0.95rem] text-muted">{project.data.tagline}</p>
               </div>
-              <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">{project.tag}</p>
-            </Tag>
+              <p class="mt-8 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">
+                {project.data.stack.join(' · ')}
+              </p>
+            </a>
           );
         })
       }
     </div>
+
+    <p class="mt-10 text-right">
+      <a
+        href="/work"
+        class="font-mono text-xs uppercase tracking-[0.15em] text-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+      >
+        View all {totalCount} projects → /work
+      </a>
+    </p>
   </div>
 </section>
