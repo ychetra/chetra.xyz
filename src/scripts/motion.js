@@ -592,6 +592,59 @@ function teardownSystemStatus() {
 }
 
 /**
+ * Cross-page fragment scroll. The ClientRouter does a soft DOM swap for
+ * cross-page anchor links like /#contact (clicked from /work/, /notes/,
+ * /tearsheet/) -- it inserts the new page's DOM and updates location.hash
+ * but the browser's native fragment-scroll doesn't reliably fire on the
+ * swapped-in fragment, so the visitor lands at scrollY=0. This finishes
+ * the job the browser skipped.
+ *
+ * Same-page hash links (Contact clicked while already on home) never
+ * trigger a ClientRouter swap, so this never runs for them -- the browser's
+ * native scroll-behavior:smooth + scroll-padding-top keep handling those
+ * untouched. Idempotent: no hash or no matching element -> no-op.
+ *
+ * Header offset: window.scrollTo with an explicit `top` bypasses CSS
+ * scroll-padding-top, so the persisted <header>'s own height (h-16 = 64px)
+ * is subtracted manually to keep the target heading clear of the fixed
+ * header. The site-nav header is the first <header> in the DOM (Nav renders
+ * before <main>), so querySelector('header') finds the right one even on
+ * templates that also render an article <header> deeper in the page.
+ * Reduced-motion -> instant jump, else smooth (matches the global CSS).
+ *
+ * rAF fallback: the target should exist by the time this runs (it's called
+ * from ScrollTrigger's refresh event in initPageContent, well after DOM
+ * mount), but if a section ever mounts late we retry once on the next tick
+ * -- costs nothing and avoids a silent miss.
+ *
+ * Timing (important): see initPageContent -- this is invoked AFTER
+ * ScrollTrigger's auto-refresh settles, because that refresh's measurement
+ * pass resets scroll to 0 and would otherwise clobber a pre-refresh call.
+ */
+function handleHashScroll() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+
+  const scrollToEl = (el) => {
+    if (!el) return;
+    const header = document.querySelector('header');
+    const headerHeight = header ? header.offsetHeight : 64;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerHeight;
+    window.scrollTo({
+      top,
+      behavior: reducedMotion() ? 'auto' : 'smooth',
+    });
+  };
+
+  const el = document.getElementById(hash);
+  if (el) {
+    scrollToEl(el);
+    return;
+  }
+  requestAnimationFrame(() => scrollToEl(document.getElementById(hash)));
+}
+
+/**
  * Runs on the initial load AND after every client-side nav. Idempotent per
  * page: everything below queries the live DOM fresh each call, so there are
  * no stale element references carried over from a previous page.
@@ -602,7 +655,12 @@ function initPageContent() {
   syncNavActiveState();
   initSystemStatus();
 
-  if (reducedMotion()) return;
+  // Reduced-motion path: no gsap.context, no ScrollTrigger -> nothing will
+  // clobber a programmatic scroll, so handle the fragment directly.
+  if (reducedMotion()) {
+    handleHashScroll();
+    return;
+  }
 
   ctx = gsap.context(() => {
     initHeroEntrance();
@@ -616,14 +674,35 @@ function initPageContent() {
     initStatusDotPulse();
   });
 
+  // ScrollTrigger order-of-operations trap (the real reason a naive
+  // page-load hash-scroll "didn't work" here): the ScrollTrigger.create()
+  // calls above batch an auto-refresh on the next frame, and that refresh
+  // does a measurement pass that temporarily forces scrollBehavior='auto'
+  // and scrollTo(0) -- clobbering any hash-scroll done before it settles.
+  // So handleHashScroll MUST run after that refresh completes, not before.
+  // Hooking ScrollTrigger's own 'refresh' event (registered synchronously
+  // here, before the batched refresh fires) is the deterministic way to
+  // land our scroll after the measurement pass. One-shot: the listener
+  // removes itself so the later fonts-driven refresh below doesn't double-
+  // fire a second smooth scroll. See handleHashScroll for the header offset
+  // + reduced-motion behavior selection (idempotent, safe to re-call).
+  const onFirstRefresh = () => {
+    ScrollTrigger.removeEventListener('refresh', onFirstRefresh);
+    handleHashScroll();
+  };
+  ScrollTrigger.addEventListener('refresh', onFirstRefresh);
+
   initScrollProgress();
 
-  // Webfonts loading after first layout can reflow the page and leave
-  // ScrollTrigger's cached trigger offsets stale. Recompute once fonts settle.
+  // Webfonts loading after first layout can reflow the page and leave both
+  // ScrollTrigger's cached trigger offsets AND our hash target's offset
+  // stale. Recompute once fonts settle, then re-apply the hash-scroll in
+  // case the target section shifted vertically with the reflow.
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => {
       if (!reducedMotion()) {
         ScrollTrigger.refresh();
+        handleHashScroll();
       }
     });
   }
