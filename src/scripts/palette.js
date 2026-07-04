@@ -274,3 +274,10 @@ function init() {
 }
 
 document.addEventListener('astro:page-load', init);
+
+// If the palette is open when a swap starts (e.g. browser back/forward),
+// close it first: its inert targets (main/footer) are about to be replaced
+// by fresh, non-inert nodes, which would strand a stale-open dialog state.
+document.addEventListener('astro:before-swap', () => {
+  closePalette();
+});
