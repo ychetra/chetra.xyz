@@ -38,7 +38,7 @@ import { gsap } from 'gsap';
 const SPAWN_INTERVAL_MS = 3500;
 const POOL_SIZE = 3;
 const TRAVEL_S = 0.45; // seconds per stage-to-stage leg
-const HALF = 2; // half of the 4px candidate square, for centering
+const HALF = 4; // half of the 8px candidate square, for centering
 
 const SURVIVAL = {
   screen: 0.56, // -> 44% die at SCREEN, matches the real 3,911->2,192 ratio
