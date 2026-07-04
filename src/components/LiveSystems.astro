@@ -36,29 +36,36 @@ const system = {
       >
         <figure
           data-theme-lock="dark"
-          class="relative flex aspect-video flex-col items-center justify-center gap-4 border border-line bg-elevated transition-colors duration-300 group-hover:border-accent"
+          class="relative overflow-hidden border border-line bg-elevated transition-colors duration-300 group-hover:border-accent"
         >
-          <svg
-            class="h-8 w-8 text-muted transition-colors duration-300 group-hover:text-accent"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-            aria-hidden="true"
+          <img
+            src="/systems/trading-cockpit.jpg"
+            alt="The trading cockpit's System view — MT5 bridge and MongoDB health, 19-agent monitor, and a live spread-drift table across 15 instruments."
+            width="1600"
+            height="688"
+            loading="lazy"
+            decoding="async"
+            class="block w-full"
+          />
+          <figcaption
+            class="flex items-center justify-between gap-3 border-t border-line px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-muted"
           >
-            <rect x="4" y="11" width="16" height="9" />
-            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-          </svg>
-          <p class="font-mono text-xs uppercase tracking-[0.15em] text-muted">
-            BEHIND AUTH — LIVE INSTANCE
-          </p>
-          <p class="font-mono text-[11px] text-muted opacity-60">{system.domain}</p>
-          <span
-            class="absolute right-3 top-3 font-mono text-[10px] uppercase tracking-[0.1em] text-muted opacity-60"
-            aria-hidden="true"
-          >
-            no public preview
-          </span>
+            <span class="inline-flex items-center gap-1.5">
+              <svg
+                class="h-3 w-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <rect x="4" y="11" width="16" height="9" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              Behind auth — live instance
+            </span>
+            <span class="opacity-60">real screenshot · 2026-07-04</span>
+          </figcaption>
         </figure>
       </a>
 
