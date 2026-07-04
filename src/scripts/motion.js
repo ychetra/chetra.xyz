@@ -543,6 +543,55 @@ function initFunnelTooltips() {
 }
 
 /**
+ * Live-system reachability check (LiveSystems.astro). A no-cors fetch from
+ * the visitor's browser: resolves (opaque) whenever the host is reachable,
+ * rejects only on network failure — so the dot reflects real reachability,
+ * not a hardcoded badge. Runs regardless of reduced-motion (it's status,
+ * not decoration). Aborted on swap via the controller below.
+ */
+let systemStatusController = null;
+
+function initSystemStatus() {
+  const el = document.querySelector('[data-system-status]');
+  if (!el) return;
+  const url = el.dataset.systemUrl;
+  const dot = el.querySelector('[data-system-status-dot]');
+  const label = el.querySelector('[data-system-status-label]');
+  if (!url || !dot || !label) return;
+
+  systemStatusController = new AbortController();
+  const timeout = window.setTimeout(() => systemStatusController?.abort(), 8000);
+
+  fetch(url, { mode: 'no-cors', cache: 'no-store', signal: systemStatusController.signal })
+    .then(() => {
+      dot.classList.remove('bg-muted', 'bg-down');
+      dot.classList.add('bg-up');
+      label.textContent = 'LIVE';
+      label.classList.remove('text-muted', 'text-down');
+      label.classList.add('text-up');
+      if (!reducedMotion()) {
+        gsap.to(dot, { opacity: 0.3, duration: 1, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      }
+    })
+    .catch(() => {
+      dot.classList.remove('bg-muted', 'bg-up');
+      dot.classList.add('bg-down');
+      label.textContent = 'UNREACHABLE';
+      label.classList.remove('text-muted', 'text-up');
+      label.classList.add('text-down');
+    })
+    .finally(() => window.clearTimeout(timeout));
+}
+
+function teardownSystemStatus() {
+  systemStatusController?.abort();
+  systemStatusController = null;
+  // The LIVE dot pulse is created inside a fetch .then — possibly after the
+  // gsap context snapshot — so kill it explicitly by selector.
+  gsap.killTweensOf('[data-system-status-dot]');
+}
+
+/**
  * Runs on the initial load AND after every client-side nav. Idempotent per
  * page: everything below queries the live DOM fresh each call, so there are
  * no stale element references carried over from a previous page.
@@ -551,6 +600,7 @@ function initPageContent() {
   initNav();
   initFunnelTooltips();
   syncNavActiveState();
+  initSystemStatus();
 
   if (reducedMotion()) return;
 
@@ -591,6 +641,7 @@ function teardownPageContent() {
     ctx = null;
   }
   teardownScrollProgress();
+  teardownSystemStatus();
   // Magnetic tweens are short-lived (<=0.4s) and self-bounded, but kill any
   // still in flight defensively so nothing keeps writing to a detached
   // node's inline transform after the swap.
