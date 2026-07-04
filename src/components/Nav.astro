@@ -1,7 +1,10 @@
 ---
 const links = [
   { label: 'Work', href: '/work/' },
+  { label: 'Track record', href: '/#factory' },
+  { label: 'Systems', href: '/#systems' },
   { label: 'Notes', href: '/notes/' },
+  { label: 'Tearsheet', href: '/tearsheet/' },
   { label: 'Contact', href: '/#contact' },
 ];
 
@@ -29,7 +32,7 @@ function isActiveLink(href: string) {
     </a>
 
     <div class="hidden items-center gap-6 md:flex">
-      <ul class="flex items-center gap-8 font-mono text-xs uppercase tracking-[0.15em]">
+      <ul class="flex items-center gap-1 font-mono text-xs uppercase tracking-[0.15em]">
         {
           links.map((link) => (
             <li>
@@ -38,7 +41,7 @@ function isActiveLink(href: string) {
                 data-nav-link
                 aria-current={isActiveLink(link.href) ? 'page' : undefined}
                 class:list={[
-                  'underline underline-offset-4 transition-colors hover:text-accent hover:decoration-accent',
+                  'block px-3 py-2 underline underline-offset-4 transition-colors hover:text-accent hover:decoration-accent',
                   isActiveLink(link.href) ? 'text-accent decoration-accent' : 'text-fg decoration-transparent',
                 ]}
               >
