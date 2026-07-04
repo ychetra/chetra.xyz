@@ -1,7 +1,11 @@
 ---
 /*
   Hand-authored jagged equity curve, 24 points, general uptrend with two
-  visible drawdown dips (around points 9-11 and 18-21). viewBox 0 0 1000 300.
+  visible drawdown dips (around points 9-11 and 18-21). Logical space 0-1000
+  (x) by 0-300 (y, 0 = top/high equity, 300 = baseline) -- this is the seed
+  motion.js's initHeroViz() draws on a <canvas> and keeps extending forward
+  (see src/scripts/motion.js). Values are simulated/illustrative, never a
+  real track record (see the always-visible "simulated - illustrative" tag).
 */
 const equityPoints: [number, number][] = [
   [0, 254.4],
@@ -29,9 +33,6 @@ const equityPoints: [number, number][] = [
   [956.5, 100.8],
   [1000, 49.6],
 ];
-
-const linePath = equityPoints.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
-const fillPath = `${linePath} L1000,300 L0,300 Z`;
 ---
 
 <section id="hero" aria-labelledby="hero-heading" class="relative min-h-[100svh] overflow-hidden border-b border-line">
@@ -41,31 +42,21 @@ const fillPath = `${linePath} L1000,300 L0,300 Z`;
     data-curve-points={JSON.stringify(equityPoints)}
     aria-hidden="true"
   >
-    <svg
-      viewBox="0 0 1000 300"
-      preserveAspectRatio="none"
-      class="h-full w-full"
-      role="presentation"
+    <!-- Live-drawing equity curve: motion.js's initHeroViz() owns this
+         canvas entirely (sizing, drawing, the rAF loop). Reduced-motion
+         still gets exactly one static frame drawn (seed curve + a few
+         markers) -- never a blank canvas -- see initHeroViz. -->
+    <canvas data-hero-canvas class="block h-full w-full"></canvas>
+
+    <!-- Honesty tag: always visible, sits in the empty padding strip below
+         the CTA row (content grid has pb-16/24, the buttons don't reach the
+         very bottom edge), so it never overlaps headline/body/CTAs. -->
+    <div
+      data-hero-viz-label
+      class="pointer-events-none absolute bottom-3 right-4 font-mono text-[10px] uppercase tracking-[0.1em] text-muted md:bottom-4 md:right-6"
     >
-      <defs>
-        <linearGradient id="equity-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" style="stop-color: var(--color-accent)" stop-opacity="0.04" />
-          <stop offset="100%" style="stop-color: var(--color-accent)" stop-opacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={fillPath} fill="url(#equity-fade)" />
-      <path
-        data-equity-line
-        d={linePath}
-        fill="none"
-        style="stroke: var(--color-accent)"
-        stroke-opacity="0.35"
-        stroke-width="2"
-        stroke-linejoin="round"
-        vector-effect="non-scaling-stroke"
-        pathLength="1"
-      />
-    </svg>
+      simulated &middot; illustrative
+    </div>
 
     <!-- Trading-terminal crosshair: pre-created hidden, positioned/shown by
          motion.js's initHeroCrosshair (desktop pointer:fine only, rAF-
