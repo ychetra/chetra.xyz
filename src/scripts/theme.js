@@ -34,11 +34,11 @@ function reducedMotion() {
 
 function readStoredTheme() {
   try {
-    return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark';
+    return localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light';
   } catch {
-    // Storage unavailable (private mode / disabled) -- fall back to dark,
+    // Storage unavailable (private mode / disabled) -- fall back to light,
     // matching the no-FOUC script's own try/catch fallback.
-    return 'dark';
+    return 'light';
   }
 }
 
