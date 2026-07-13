@@ -13,16 +13,17 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 7. Copy voice: quiet, precise, zero hype.
 
 ## STATE
-- Iteration: 1 (a11y sweep — builder dispatched)
+- Iteration: 3 (dead CSS/JS audit — next)
 - Branch: `site-loop`
-- Baseline (2026-07-10): build 35.4s, 25 pages, raw JS 156,818/204,800 bytes (77% of budget)
+- Baseline (2026-07-10): build 35.4s, 25 pages (astro count incl. 404; verify-site counts 24 index.html), raw JS 156,818/204,800 bytes (77% of budget)
+- Lighthouse baseline (2026-07-13, it2): all 6 runs ≥95. Known ceilings: home BP 96 = console error from external trading.chetra.xyz 530 (not a site defect); home mobile perf 96 = throttled FCP 2.0s.
 - Standing risk: host disk 98% full — large artifacts (screenshots, lighthouse reports) go to scratchpad, not repo.
 
 ## BACKLOG (top = next)
 ### P1 — perf + polish
 - [x] **Baseline**: build 35.4s · 25 pages · JS 156,818 bytes (77% of budget). Recorded in STATE.
-- [ ] A11y sweep: focus-visible states, aria-labels on icon links, prefers-reduced-motion coverage audit (fallback rule check on every GSAP init).
-- [ ] Lighthouse 4-category run (needs `npx lighthouse` vs preview server — heavy; scratchpad output) → fix lowest category to ≥95.
+- [x] A11y sweep: palette input focus ring restored (outline-none killed the global :focus-visible rule); archive Repo/Live links got per-project aria-labels. Reduced-motion audit: all 15 animation inits covered, zero gaps. Everything else already correct.
+- [x] Lighthouse: 6 runs (home/work/featured × desktop/mobile) all ≥95 — perf 96-100, a11y 100, BP 96-100, SEO 100. Zero fixes needed. Ceilings recorded in STATE.
 - [ ] Dead CSS/JS audit: unused tokens, orphaned styles, stale OG assets.
 
 ### P2 — features
@@ -39,3 +40,5 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 
 ## LOG
 - 2026-07-10 · it0 · scaffolding: LOOP.md + site-loop skill + verify-site.sh created; git index corruption repaired (disk 98% full — flagged).
+- 2026-07-10 · it1 · a11y sweep (2 files, markup-only) · VERIFY OK, JS unchanged 156,818B · reviewer cut off by session limit, remaining checks finished in main thread · commit 7df9ec0.
+- 2026-07-13 · it2 · Lighthouse 6 runs all ≥95 (min: home BP 96 = external trading.chetra.xyz 530 console error; home mobile perf 96 = throttled FCP 2.0s) · zero fixes needed · main-thread spot-check of raw JSONs matched · VERIFY OK, JS unchanged 156,818B.
