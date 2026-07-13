@@ -13,7 +13,7 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 7. Copy voice: quiet, precise, zero hype.
 
 ## STATE
-- Iteration: 3 (dead CSS/JS audit — next)
+- Iteration: 4 (/now page — builder dispatched)
 - Branch: `site-loop`
 - Baseline (2026-07-10): build 35.4s, 25 pages (astro count incl. 404; verify-site counts 24 index.html), raw JS 156,818/204,800 bytes (77% of budget)
 - Lighthouse baseline (2026-07-13, it2): all 6 runs ≥95. Known ceilings: home BP 96 = console error from external trading.chetra.xyz 530 (not a site defect); home mobile perf 96 = throttled FCP 2.0s.
@@ -24,7 +24,7 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 - [x] **Baseline**: build 35.4s · 25 pages · JS 156,818 bytes (77% of budget). Recorded in STATE.
 - [x] A11y sweep: palette input focus ring restored (outline-none killed the global :focus-visible rule); archive Repo/Live links got per-project aria-labels. Reduced-motion audit: all 15 animation inits covered, zero gaps. Everything else already correct.
 - [x] Lighthouse: 6 runs (home/work/featured × desktop/mobile) all ≥95 — perf 96-100, a11y 100, BP 96-100, SEO 100. Zero fixes needed. Ceilings recorded in STATE.
-- [ ] Dead CSS/JS audit: unused tokens, orphaned styles, stale OG assets.
+- [x] Dead CSS/JS audit: clean — all 13 @theme tokens live, zero orphaned selectors, OG assets match slugs 1:1, all JS functions consumed. Nothing removed.
 
 ### P2 — features
 - [ ] `/now` page — what's running now (trading factory status, current focus). Static, hand-written, no live numbers.
@@ -42,3 +42,4 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 - 2026-07-10 · it0 · scaffolding: LOOP.md + site-loop skill + verify-site.sh created; git index corruption repaired (disk 98% full — flagged).
 - 2026-07-10 · it1 · a11y sweep (2 files, markup-only) · VERIFY OK, JS unchanged 156,818B · reviewer cut off by session limit, remaining checks finished in main thread · commit 7df9ec0.
 - 2026-07-13 · it2 · Lighthouse 6 runs all ≥95 (min: home BP 96 = external trading.chetra.xyz 530 console error; home mobile perf 96 = throttled FCP 2.0s) · zero fixes needed · main-thread spot-check of raw JSONs matched · VERIFY OK, JS unchanged 156,818B.
+- 2026-07-13 · it3 · dead CSS/JS audit · zero dead code found (tokens/selectors/OG/JS all live; conservative rules) · tree untouched, spot-checks matched · VERIFY OK, JS unchanged 156,818B.
