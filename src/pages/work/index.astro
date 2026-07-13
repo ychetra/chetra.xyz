@@ -186,18 +186,20 @@ function slugFor(p: (typeof allProjects)[number]) {
                           href={project.data.repo}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`${project.data.title} — repo, opens in new tab`}
                           class="shrink-0 font-mono text-[11px] uppercase tracking-[0.1em] text-accent underline underline-offset-4"
                         >
-                          Repo ↗<span class="sr-only"> (opens in new tab)</span>
+                          Repo ↗
                         </a>
                       ) : project.data.demo ? (
                         <a
                           href={project.data.demo}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`${project.data.title} — live, opens in new tab`}
                           class="shrink-0 font-mono text-[11px] uppercase tracking-[0.1em] text-accent underline underline-offset-4"
                         >
-                          Live ↗<span class="sr-only"> (opens in new tab)</span>
+                          Live ↗
                         </a>
                       ) : null}
                     </li>
