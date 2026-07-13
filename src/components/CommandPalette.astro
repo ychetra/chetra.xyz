@@ -31,6 +31,7 @@ const commands: Command[] = [
   ...allNotes.map((n) => ({ label: `notes/${n.id}`, href: `/notes/${n.id}/`, kind: 'nav' as const })),
   { label: 'Tearsheet', href: '/tearsheet/', kind: 'nav' },
   { label: 'Download tearsheet PDF', href: '/tearsheet.pdf', kind: 'download' },
+  { label: 'Now', href: '/now/', kind: 'nav' },
   { label: 'Contact', href: '/#contact', kind: 'nav' },
   { label: 'GitHub', href: 'https://github.com/ychetra', kind: 'external' },
   { label: 'Email', href: 'mailto:hi@chetra.xyz', kind: 'mailto' },

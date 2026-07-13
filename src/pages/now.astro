@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+
+const title = 'Now — Chetra';
+const description = "What I'm building and focused on, right now.";
+const lastUpdated = '2026-07-13';
+---
+
+<Base title={title} description={description}>
+  <section aria-labelledby="now-heading" class="mx-auto flex max-w-3xl flex-col px-6 pb-24 pt-32 md:px-10 md:pb-32 md:pt-40">
+    <p class="mb-6 font-mono text-xs uppercase tracking-[0.25em] text-muted"><span class="text-accent">// </span>NOW</p>
+    <h1 id="now-heading" class="mb-4 font-display text-5xl font-black leading-[0.95] md:text-7xl">Now</h1>
+    <p class="mb-14 font-mono text-xs text-muted">Last updated {lastUpdated}.</p>
+
+    <div class="flex flex-col gap-12">
+      <div>
+        <h2 class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">Building</h2>
+        <p class="max-w-xl text-lg leading-relaxed text-muted">
+          A strategy factory — an autonomous pipeline that researches, screens, validates, and audits trading
+          strategies before any of them see real money. Six stages, always in that order: research, screen,
+          validate, audit, compare, live. Paper first. Always.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">Focused on</h2>
+        <p class="max-w-xl text-lg leading-relaxed text-muted">
+          Validation discipline, not headline numbers. Every candidate has to clear real-spread revalidation, a
+          deflated Sharpe audit, and a holdout window sealed before search began — most don't. The one survivor,
+          ORB_SESSION, is being prepared for a HolaPrime 2-step challenge under the same risk ladder: position
+          sizing, loss limits, a kill switch.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="mb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted">Elsewhere</h2>
+        <p class="max-w-xl text-lg leading-relaxed text-muted">
+          Based in Phnom Penh, self-taught. This site runs on one rule: every number from validated runs,
+          nothing published before it's true. Notes cover the systems behind the work.
+        </p>
+      </div>
+    </div>
+
+    <a href="/" class="mt-14 w-fit font-mono text-sm text-accent underline underline-offset-4">← Back home</a>
+  </section>
+</Base>
