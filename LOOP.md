@@ -13,7 +13,7 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 7. Copy voice: quiet, precise, zero hype.
 
 ## STATE
-- Iteration: 5 (RSS feed — next)
+- Iteration: 6 (404 page — next)
 - Branch: `site-loop`
 - Baseline (2026-07-10): build 35.4s, 25 pages (astro count incl. 404; verify-site counts 24 index.html), raw JS 156,818/204,800 bytes (77% of budget)
 - Lighthouse baseline (2026-07-13, it2): all 6 runs ≥95. Known ceilings: home BP 96 = console error from external trading.chetra.xyz 530 (not a site defect); home mobile perf 96 = throttled FCP 2.0s.
@@ -28,8 +28,9 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 
 ### P2 — features
 - [x] `/now` page — static, 3 sections, every sentence fact-traced to already-published copy (trace table in docs/drafts/now-page.md). Nav + ⌘K entries added. PENDING USER PROSE REVIEW before deploy.
-- [ ] RSS feed for notes (`@astrojs/rss`, official + tiny — flag as new dep).
+- [x] RSS feed for notes — `src/pages/rss.xml.js` + `<link rel="alternate">` in Base head. New dep: `@astrojs/rss@4.0.19` (only dep added by the loop). Build-time only, JS budget unchanged. Notes-index RSS link deferred (design judgment) → see backlog.
 - [ ] 404 page in site voice.
+- [ ] Visible RSS link on /notes/ (deferred from it5 — needs design judgment: placement + whether an icon fits the no-radius/mono system).
 
 ### P3 — project integrations
 - [ ] Factory architecture note + inline SVG diagram (from ~/trading-agent docs; DEMO-labeled, zero numbers).
@@ -44,3 +45,4 @@ Model forgets between runs; this file doesn't. Every iteration reads it first, w
 - 2026-07-13 · it2 · Lighthouse 6 runs all ≥95 (min: home BP 96 = external trading.chetra.xyz 530 console error; home mobile perf 96 = throttled FCP 2.0s) · zero fixes needed · main-thread spot-check of raw JSONs matched · VERIFY OK, JS unchanged 156,818B.
 - 2026-07-13 · it3 · dead CSS/JS audit · zero dead code found (tokens/selectors/OG/JS all live; conservative rules) · tree untouched, spot-checks matched · VERIFY OK, JS unchanged 156,818B.
 - 2026-07-13 · it4 · /now page (now.astro + nav + ⌘K, zero client JS) · reviewer found 2 attribution risks in prose, both fixed; fact-trace verified in main thread · playwright 375/1440 clean, no overflow · VERIFY OK, JS unchanged 156,818B, 25 pages (+1).
+- 2026-07-13 · it5 · RSS feed for notes (rss.xml.js + head link, @astrojs/rss@4.0.19) · audit: `draft` filter matches real schema, feed description lifted verbatim from notes/index.astro:7, dep in `dependencies` not dev · main thread added reverse-chron sort (glob order would break with a 2nd note) · rendered item = absolute URL + trailing slash · VERIFY OK, JS unchanged 156,818B.
